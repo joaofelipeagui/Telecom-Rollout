@@ -1,0 +1,7 @@
+{
+  "env": {
+    "ANTHROPIC_API_KEY": "@anthropic_api_key",
+    "MAPBOX_TOKEN": "@mapbox_token",
+    "NEXT_PUBLIC_MAPBOX_TOKEN": "@mapbox_token"
+  }
+}
