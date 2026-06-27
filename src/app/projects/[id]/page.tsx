@@ -13,7 +13,8 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
 import { Progress } from '@/components/ui/progress'
 import {
   ArrowLeft, Download, Bot, Plus, LogOut, Package,
-  BarChart3, AlertTriangle, GitBranch, Clock, Share2, FileSpreadsheet, Eye, X, Lightbulb
+  BarChart3, AlertTriangle, GitBranch, Clock, Share2, FileSpreadsheet, Eye, X, Lightbulb,
+  Bell, Award
 } from 'lucide-react'
 import Link from 'next/link'
 import { SitesTable } from '@/components/SitesTable'
@@ -29,6 +30,8 @@ import { ExecutiveReport } from '@/components/ExecutiveReport'
 import { EscalationTracker } from '@/components/EscalationTracker'
 import { GanttView } from '@/components/GanttView'
 import { ChangeLog } from '@/components/ChangeLog'
+import { SLAAlerts, getSLAAlertCount } from '@/components/SLAAlerts'
+import { CarrierScorecard } from '@/components/CarrierScorecard'
 import { generateKMZ, downloadBlob } from '@/lib/kmz'
 import { RolePicker } from '@/components/RolePicker'
 
@@ -93,6 +96,7 @@ export default function ProjectPage({ params }: { params: Promise<{ id: string }
   const progress    = stats.total    ? Math.round((stats.completed   / stats.total)    * 100) : 0
   const diaProgress = stats.totalDIA ? Math.round((stats.confirmedDIA / stats.totalDIA) * 100) : 0
   const openEscalations = (project.escalations ?? []).filter(e => e.status !== 'resolved').length
+  const slaAlertCount   = getSLAAlertCount(project)
 
   const effectiveRole = user?.role ?? 'solutions_director'
 
@@ -233,6 +237,13 @@ export default function ProjectPage({ params }: { params: Promise<{ id: string }
                 <AlertTriangle className="w-3.5 h-3.5 mr-1" />
                 Escalations {openEscalations > 0 && <span className="ml-1 bg-red-600 text-white text-xs px-1.5 py-0.5 rounded-full">{openEscalations}</span>}
               </TabsTrigger>
+              <TabsTrigger value="sla"       className="data-[state=active]:bg-gray-800 text-xs">
+                <Bell className="w-3.5 h-3.5 mr-1" />
+                SLA Alerts {slaAlertCount > 0 && <span className="ml-1 bg-orange-600 text-white text-xs px-1.5 py-0.5 rounded-full">{slaAlertCount}</span>}
+              </TabsTrigger>
+              <TabsTrigger value="carriers"  className="data-[state=active]:bg-gray-800 text-xs">
+                <Award className="w-3.5 h-3.5 mr-1" />Carrier Score
+              </TabsTrigger>
               <TabsTrigger value="director"  className="data-[state=active]:bg-gray-800 text-xs">KPI Dashboard</TabsTrigger>
               <TabsTrigger value="changelog" className="data-[state=active]:bg-gray-800 text-xs">
                 <Clock className="w-3.5 h-3.5 mr-1" />Change Log
@@ -241,6 +252,8 @@ export default function ProjectPage({ params }: { params: Promise<{ id: string }
             <TabsContent value="report">      <ExecutiveReport project={project} onUpdate={reload} /></TabsContent>
             <TabsContent value="gantt">       <GanttView project={project} /></TabsContent>
             <TabsContent value="escalations"> <EscalationTracker project={project} onUpdate={reload} readonly={readonly} /></TabsContent>
+            <TabsContent value="sla">         <SLAAlerts project={project} /></TabsContent>
+            <TabsContent value="carriers">    <CarrierScorecard project={project} /></TabsContent>
             <TabsContent value="director">    <DirectorView project={project} /></TabsContent>
             <TabsContent value="changelog">   <ChangeLog project={project} /></TabsContent>
           </Tabs>
@@ -260,6 +273,13 @@ export default function ProjectPage({ params }: { params: Promise<{ id: string }
                 <AlertTriangle className="w-3.5 h-3.5 mr-1" />
                 Escalations {openEscalations > 0 && <span className="ml-1 bg-red-600 text-white text-xs px-1.5 py-0.5 rounded-full">{openEscalations}</span>}
               </TabsTrigger>
+              <TabsTrigger value="sla"         className="data-[state=active]:bg-gray-800 text-xs">
+                <Bell className="w-3.5 h-3.5 mr-1" />
+                SLA Alerts {slaAlertCount > 0 && <span className="ml-1 bg-orange-600 text-white text-xs px-1.5 py-0.5 rounded-full">{slaAlertCount}</span>}
+              </TabsTrigger>
+              <TabsTrigger value="carriers"    className="data-[state=active]:bg-gray-800 text-xs">
+                <Award className="w-3.5 h-3.5 mr-1" />Carrier Score
+              </TabsTrigger>
               <TabsTrigger value="report"      className="data-[state=active]:bg-gray-800 text-xs">
                 <BarChart3 className="w-3.5 h-3.5 mr-1" />Report
               </TabsTrigger>
@@ -275,6 +295,8 @@ export default function ProjectPage({ params }: { params: Promise<{ id: string }
             <TabsContent value="logistics"   className="mt-4"><LogisticsView project={project} onUpdate={reload} /></TabsContent>
             <TabsContent value="gantt"       className="mt-4"><GanttView project={project} /></TabsContent>
             <TabsContent value="escalations" className="mt-4"><EscalationTracker project={project} onUpdate={reload} readonly={readonly} /></TabsContent>
+            <TabsContent value="sla"         className="mt-4"><SLAAlerts project={project} /></TabsContent>
+            <TabsContent value="carriers"    className="mt-4"><CarrierScorecard project={project} /></TabsContent>
             <TabsContent value="report"      className="mt-4"><ExecutiveReport project={project} onUpdate={reload} /></TabsContent>
             <TabsContent value="changelog"   className="mt-4"><ChangeLog project={project} /></TabsContent>
             <TabsContent value="ai"          className="mt-4"><AIAssistant project={project} /></TabsContent>
