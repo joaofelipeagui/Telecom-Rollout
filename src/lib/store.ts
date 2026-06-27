@@ -1,5 +1,54 @@
 'use client'
-import { Project, Site, Provider, DIAStatus, DIA } from './types'
+import { Project, Site, Provider, DIAStatus, DIA, Escalation, ChangeLogEntry, ChecklistItem } from './types'
+import { getCurrentUser } from './user'
+
+function userName(): string {
+  try { return getCurrentUser()?.name ?? 'Unknown' } catch { return 'Unknown' }
+}
+
+export function addChangeLog(projectId: string, entry: Omit<ChangeLogEntry, 'id' | 'changedBy' | 'changedAt'>) {
+  const project = getProject(projectId)
+  if (!project) return
+  const log: ChangeLogEntry = {
+    ...entry,
+    id: `cl_${Date.now()}_${Math.random().toString(36).slice(2, 6)}`,
+    changedBy: userName(),
+    changedAt: new Date().toISOString(),
+  }
+  project.changelog = [log, ...(project.changelog ?? [])].slice(0, 500)
+  saveProject(project)
+}
+
+export function addEscalation(projectId: string, esc: Omit<Escalation, 'id' | 'raisedBy' | 'raisedAt'>) {
+  const project = getProject(projectId)
+  if (!project) return
+  const full: Escalation = {
+    ...esc,
+    id: `esc_${Date.now()}`,
+    raisedBy: userName(),
+    raisedAt: new Date().toISOString(),
+  }
+  project.escalations = [full, ...(project.escalations ?? [])]
+  saveProject(project)
+}
+
+export function updateEscalation(projectId: string, escalationId: string, update: Partial<Escalation>) {
+  const project = getProject(projectId)
+  if (!project) return
+  project.escalations = (project.escalations ?? []).map(e =>
+    e.id === escalationId ? { ...e, ...update } : e
+  )
+  saveProject(project)
+}
+
+export function updateSiteChecklist(projectId: string, siteId: string, items: ChecklistItem[]) {
+  const project = getProject(projectId)
+  if (!project) return
+  const idx = project.sites.findIndex(s => s.id === siteId)
+  if (idx < 0) return
+  project.sites[idx].checklist = items
+  saveProject(project)
+}
 
 const STORAGE_KEY = 'telecom_pm_projects'
 
@@ -45,13 +94,17 @@ export function updateSiteDIA(
   return project
 }
 
-export function updateSite(projectId: string, siteId: string, update: Partial<Site>) {
+export function updateSite(projectId: string, siteId: string, update: Partial<Site>, log?: { field: string; oldValue?: string; newValue: string }) {
   const project = getProject(projectId)
   if (!project) return
   const idx = project.sites.findIndex(s => s.id === siteId)
   if (idx < 0) return
-  project.sites[idx] = { ...project.sites[idx], ...update }
+  const site = project.sites[idx]
+  project.sites[idx] = { ...site, ...update }
   saveProject(project)
+  if (log) {
+    addChangeLog(projectId, { siteId, siteName: site.name, ...log })
+  }
   return project
 }
 

@@ -99,6 +99,7 @@ export interface DIA {
   status: DIAStatus
   circuitNumber?: string
   requestedAt?: string
+  slaDate?: string
   confirmedAt?: string
   pathA?: string
   pathB?: string
@@ -123,6 +124,67 @@ export interface ActivityEvent {
 
 export type Wave = 1 | 2 | 3
 
+export interface ChecklistItem {
+  id: string
+  label: string
+  category: 'pre_survey' | 'installation' | 'connectivity' | 'handover'
+  done: boolean
+  doneBy?: string
+  doneAt?: string
+}
+
+export const DEFAULT_CHECKLIST: ChecklistItem[] = [
+  { id: 'c1',  label: 'Site survey completed',                 category: 'pre_survey',   done: false },
+  { id: 'c2',  label: 'Site access confirmed with customer',   category: 'pre_survey',   done: false },
+  { id: 'c3',  label: 'Power availability confirmed',          category: 'pre_survey',   done: false },
+  { id: 'c4',  label: 'Civil works approved',                  category: 'pre_survey',   done: false },
+  { id: 'c5',  label: 'Equipment delivered to site',           category: 'installation', done: false },
+  { id: 'c6',  label: 'Primary router installed & powered',    category: 'installation', done: false },
+  { id: 'c7',  label: 'Backup router installed & powered',     category: 'installation', done: false },
+  { id: 'c8',  label: 'Primary DIA circuit connected & tested',category: 'connectivity', done: false },
+  { id: 'c9',  label: 'Backup DIA circuit connected & tested', category: 'connectivity', done: false },
+  { id: 'c10', label: 'SD-WAN configuration pushed',           category: 'connectivity', done: false },
+  { id: 'c11', label: 'Failover test passed',                  category: 'connectivity', done: false },
+  { id: 'c12', label: 'Customer acceptance signed',            category: 'handover',     done: false },
+  { id: 'c13', label: 'KMZ document delivered',                category: 'handover',     done: false },
+  { id: 'c14', label: 'Hand-over documentation submitted',     category: 'handover',     done: false },
+]
+
+export interface SitePhoto {
+  id: string
+  name: string
+  dataUrl: string
+  uploadedAt: string
+  note?: string
+}
+
+export interface Escalation {
+  id: string
+  siteId: string
+  siteName: string
+  title: string
+  description: string
+  priority: 'low' | 'medium' | 'high' | 'critical'
+  status: 'open' | 'in_progress' | 'resolved'
+  raisedBy: string
+  raisedAt: string
+  assignedTo?: string
+  dueDate?: string
+  resolution?: string
+  resolvedAt?: string
+}
+
+export interface ChangeLogEntry {
+  id: string
+  siteId?: string
+  siteName?: string
+  field: string
+  oldValue?: string
+  newValue: string
+  changedBy: string
+  changedAt: string
+}
+
 export interface Site {
   id: string
   name: string
@@ -139,6 +201,8 @@ export interface Site {
   kmzGenerated?: boolean
   aiDescription?: string
   wave?: Wave
+  checklist?: ChecklistItem[]
+  photos?: SitePhoto[]
   createdAt: string
 }
 
@@ -156,6 +220,8 @@ export interface Project {
   sites: Site[]
   activity?: ActivityEvent[]
   waves?: WaveConfig[]
+  escalations?: Escalation[]
+  changelog?: ChangeLogEntry[]
   createdAt: string
 }
 
