@@ -8,7 +8,7 @@ import { Badge } from '@/components/ui/badge'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
 import { Progress } from '@/components/ui/progress'
-import { ArrowLeft, Download, Bot, Plus, MapPin, LogOut } from 'lucide-react'
+import { ArrowLeft, Download, Bot, Plus, MapPin, LogOut, Package } from 'lucide-react'
 import Link from 'next/link'
 import { SitesTable } from '@/components/SitesTable'
 import { DIAMatrix } from '@/components/DIAMatrix'
@@ -18,6 +18,7 @@ import { FieldEngineerView } from '@/components/roles/FieldEngineerView'
 import { TelcoEngineerView } from '@/components/roles/TelcoEngineerView'
 import { SDWANEngineerView } from '@/components/roles/SDWANEngineerView'
 import { DirectorView } from '@/components/roles/DirectorView'
+import { LogisticsView } from '@/components/LogisticsView'
 import { generateKMZ, downloadBlob } from '@/lib/kmz'
 import { RolePicker } from '@/components/RolePicker'
 
@@ -143,7 +144,11 @@ export default function ProjectPage({ params }: { params: Promise<{ id: string }
           <Tabs defaultValue="sites">
             <TabsList className="bg-gray-900 border border-gray-800">
               <TabsTrigger value="sites" className="data-[state=active]:bg-gray-800">Sites</TabsTrigger>
-              <TabsTrigger value="dia" className="data-[state=active]:bg-gray-800">DIA Matrix</TabsTrigger>
+              <TabsTrigger value="dia" className="data-[state=active]:bg-gray-800">DIA / Connectivity</TabsTrigger>
+              <TabsTrigger value="logistics" className="data-[state=active]:bg-gray-800">
+                <Package className="w-3.5 h-3.5 mr-1" />
+                Device Logistics
+              </TabsTrigger>
               <TabsTrigger value="ai" className="data-[state=active]:bg-gray-800">
                 <Bot className="w-3.5 h-3.5 mr-1" />
                 AI Assistant
@@ -154,6 +159,9 @@ export default function ProjectPage({ params }: { params: Promise<{ id: string }
             </TabsContent>
             <TabsContent value="dia" className="mt-4">
               <DIAMatrix project={project} onUpdate={reload} />
+            </TabsContent>
+            <TabsContent value="logistics" className="mt-4">
+              <LogisticsView project={project} onUpdate={reload} />
             </TabsContent>
             <TabsContent value="ai" className="mt-4">
               <AIAssistant project={project} />
