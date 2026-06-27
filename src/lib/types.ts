@@ -105,12 +105,29 @@ export interface DIA {
   diversityConfirmed?: boolean
 }
 
+export const LATAM_COUNTRIES = [
+  'Brazil', 'Colombia', 'Chile', 'Argentina', 'Mexico',
+  'Peru', 'Ecuador', 'Uruguay', 'Paraguay', 'Bolivia',
+  'Venezuela', 'Panama', 'Costa Rica', 'Guatemala', 'Honduras',
+] as const
+export type LatamCountry = typeof LATAM_COUNTRIES[number]
+
+export interface ActivityEvent {
+  id: string
+  siteId: string
+  siteName: string
+  action: string
+  user: string
+  timestamp: string
+}
+
 export interface Site {
   id: string
   name: string
   address: string
   city: string
   state: string
+  country: string
   lat?: number
   lng?: number
   status: SiteStatus
@@ -119,6 +136,16 @@ export interface Site {
   notes?: string
   kmzGenerated?: boolean
   aiDescription?: string
+  createdAt: string
+}
+
+export interface Project {
+  id: string
+  name: string
+  customer: string
+  region?: string
+  sites: Site[]
+  activity?: ActivityEvent[]
   createdAt: string
 }
 
@@ -146,10 +173,3 @@ export function isSiteFullyReady(site: Site): boolean {
   return isSiteLogisticsReady(site) && isSiteDIAReady(site)
 }
 
-export interface Project {
-  id: string
-  name: string
-  customer: string
-  sites: Site[]
-  createdAt: string
-}

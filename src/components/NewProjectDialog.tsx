@@ -21,6 +21,7 @@ function parseSitesCSV(text: string): Site[] {
   const addressIdx = header.findIndex(h => h.includes('address') || h.includes('endereco') || h.includes('endereço'))
   const cityIdx = header.findIndex(h => h.includes('city') || h.includes('cidade'))
   const stateIdx = header.findIndex(h => h.includes('state') || h.includes('estado') || h === 'uf')
+  const countryIdx = header.findIndex(h => h.includes('country') || h.includes('pais') || h.includes('país'))
 
   return lines.slice(1).map((line, i) => {
     const cols = line.split(/[,;]/).map(c => c.trim().replace(/^"|"$/g, ''))
@@ -30,6 +31,7 @@ function parseSitesCSV(text: string): Site[] {
       address: cols[addressIdx] || cols[1] || '',
       city: cols[cityIdx] || cols[2] || '',
       state: cols[stateIdx] || cols[3] || '',
+      country: cols[countryIdx] || 'Brazil',
       status: 'pending',
       dias: {},
       createdAt: new Date().toISOString(),
