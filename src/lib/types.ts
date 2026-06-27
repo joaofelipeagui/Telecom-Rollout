@@ -121,6 +121,8 @@ export interface ActivityEvent {
   timestamp: string
 }
 
+export type Wave = 1 | 2 | 3
+
 export interface Site {
   id: string
   name: string
@@ -136,7 +138,14 @@ export interface Site {
   notes?: string
   kmzGenerated?: boolean
   aiDescription?: string
+  wave?: Wave
   createdAt: string
+}
+
+export interface WaveConfig {
+  wave: Wave
+  label: string
+  goLiveDate?: string
 }
 
 export interface Project {
@@ -146,6 +155,7 @@ export interface Project {
   region?: string
   sites: Site[]
   activity?: ActivityEvent[]
+  waves?: WaveConfig[]
   createdAt: string
 }
 

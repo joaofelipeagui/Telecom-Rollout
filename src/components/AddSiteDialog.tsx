@@ -5,7 +5,7 @@ import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select'
-import { Site, LATAM_COUNTRIES } from '@/lib/types'
+import { Site, LATAM_COUNTRIES, Wave } from '@/lib/types'
 
 interface Props {
   open: boolean
@@ -19,6 +19,7 @@ export function AddSiteDialog({ open, onClose, onAdd }: Props) {
   const [city, setCity] = useState('')
   const [state, setState] = useState('')
   const [country, setCountry] = useState('Brazil')
+  const [wave, setWave] = useState<Wave | undefined>(undefined)
 
   function handleAdd() {
     if (!name || !address || !city) return
@@ -27,9 +28,10 @@ export function AddSiteDialog({ open, onClose, onAdd }: Props) {
       name, address, city, state, country,
       status: 'pending',
       dias: {},
+      wave,
       createdAt: new Date().toISOString(),
     })
-    setName(''); setAddress(''); setCity(''); setState(''); setCountry('Brazil')
+    setName(''); setAddress(''); setCity(''); setState(''); setCountry('Brazil'); setWave(undefined)
   }
 
   return (
@@ -49,6 +51,20 @@ export function AddSiteDialog({ open, onClose, onAdd }: Props) {
                 {LATAM_COUNTRIES.map(c => (
                   <SelectItem key={c} value={c} className="text-white">{c}</SelectItem>
                 ))}
+              </SelectContent>
+            </Select>
+          </div>
+          <div>
+            <Label className="text-gray-300">Rollout Wave</Label>
+            <Select value={wave?.toString() || 'none'} onValueChange={v => setWave(v === 'none' ? undefined : Number(v) as Wave)}>
+              <SelectTrigger className="mt-1 bg-gray-800 border-gray-700 text-white">
+                <SelectValue placeholder="Assign to wave (optional)" />
+              </SelectTrigger>
+              <SelectContent className="bg-gray-900 border-gray-700">
+                <SelectItem value="none" className="text-gray-400">No wave assigned</SelectItem>
+                <SelectItem value="1" className="text-white">Wave 1</SelectItem>
+                <SelectItem value="2" className="text-white">Wave 2</SelectItem>
+                <SelectItem value="3" className="text-white">Wave 3</SelectItem>
               </SelectContent>
             </Select>
           </div>

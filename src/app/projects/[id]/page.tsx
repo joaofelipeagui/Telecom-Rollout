@@ -8,7 +8,7 @@ import { Badge } from '@/components/ui/badge'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
 import { Progress } from '@/components/ui/progress'
-import { ArrowLeft, Download, Bot, Plus, MapPin, LogOut, Package } from 'lucide-react'
+import { ArrowLeft, Download, Bot, Plus, MapPin, LogOut, Package, BarChart3 } from 'lucide-react'
 import Link from 'next/link'
 import { SitesTable } from '@/components/SitesTable'
 import { DIAMatrix } from '@/components/DIAMatrix'
@@ -19,6 +19,7 @@ import { TelcoEngineerView } from '@/components/roles/TelcoEngineerView'
 import { SDWANEngineerView } from '@/components/roles/SDWANEngineerView'
 import { DirectorView } from '@/components/roles/DirectorView'
 import { LogisticsView } from '@/components/LogisticsView'
+import { ExecutiveReport } from '@/components/ExecutiveReport'
 import { generateKMZ, downloadBlob } from '@/lib/kmz'
 import { RolePicker } from '@/components/RolePicker'
 
@@ -138,7 +139,17 @@ export default function ProjectPage({ params }: { params: Promise<{ id: string }
         ) : user.role === 'sdwan_engineer' ? (
           <SDWANEngineerView project={project} onUpdate={reload} />
         ) : user.role === 'solutions_director' ? (
-          <DirectorView project={project} />
+          <Tabs defaultValue="report">
+            <TabsList className="bg-gray-900 border border-gray-800 mb-4">
+              <TabsTrigger value="report" className="data-[state=active]:bg-gray-800">
+                <BarChart3 className="w-3.5 h-3.5 mr-1" />
+                Executive Report
+              </TabsTrigger>
+              <TabsTrigger value="director" className="data-[state=active]:bg-gray-800">KPI Dashboard</TabsTrigger>
+            </TabsList>
+            <TabsContent value="report"><ExecutiveReport project={project} onUpdate={reload} /></TabsContent>
+            <TabsContent value="director"><DirectorView project={project} /></TabsContent>
+          </Tabs>
         ) : (
           /* program_manager + solutions_manager: full tabs */
           <Tabs defaultValue="sites">
@@ -148,6 +159,10 @@ export default function ProjectPage({ params }: { params: Promise<{ id: string }
               <TabsTrigger value="logistics" className="data-[state=active]:bg-gray-800">
                 <Package className="w-3.5 h-3.5 mr-1" />
                 Device Logistics
+              </TabsTrigger>
+              <TabsTrigger value="report" className="data-[state=active]:bg-gray-800">
+                <BarChart3 className="w-3.5 h-3.5 mr-1" />
+                Executive Report
               </TabsTrigger>
               <TabsTrigger value="ai" className="data-[state=active]:bg-gray-800">
                 <Bot className="w-3.5 h-3.5 mr-1" />
@@ -162,6 +177,9 @@ export default function ProjectPage({ params }: { params: Promise<{ id: string }
             </TabsContent>
             <TabsContent value="logistics" className="mt-4">
               <LogisticsView project={project} onUpdate={reload} />
+            </TabsContent>
+            <TabsContent value="report" className="mt-4">
+              <ExecutiveReport project={project} onUpdate={reload} />
             </TabsContent>
             <TabsContent value="ai" className="mt-4">
               <AIAssistant project={project} />
