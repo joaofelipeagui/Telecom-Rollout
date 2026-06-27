@@ -9,8 +9,9 @@ import { Input } from '@/components/ui/input'
 import {
   Globe, AlertTriangle, CheckCircle, Clock, Zap, Wifi,
   Package, TrendingDown, Calendar, ChevronDown, ChevronRight,
-  Flag, Activity, FileText
+  Flag, Activity, FileText, Download
 } from 'lucide-react'
+import { generateExecutivePDF } from '@/lib/pdf'
 
 interface Props {
   project: Project
@@ -230,6 +231,7 @@ export function ExecutiveReport({ project, onUpdate }: Props) {
   const [waves, setWaves] = useState<WaveConfig[]>(project.waves?.length ? project.waves : defaultWaves)
   const [editingWaves, setEditingWaves] = useState(false)
   const [generating, setGenerating] = useState(false)
+  const [exportingPDF, setExportingPDF] = useState(false)
   const [reportText, setReportText] = useState('')
 
   const sites = project.sites
@@ -249,6 +251,15 @@ export function ExecutiveReport({ project, onUpdate }: Props) {
   // T-minus uses first wave with a go-live date
   const firstGoLive = waves.find(w => w.goLiveDate)?.goLiveDate
   const tminus = getTMinus(sites, firstGoLive)
+
+  async function exportPDF() {
+    setExportingPDF(true)
+    try {
+      await generateExecutivePDF(project, waves, reportText || undefined)
+    } finally {
+      setExportingPDF(false)
+    }
+  }
 
   async function generateReport() {
     setGenerating(true)
@@ -304,6 +315,19 @@ export function ExecutiveReport({ project, onUpdate }: Props) {
 
   return (
     <div className="space-y-6">
+
+      {/* ── Top action bar ─────────────────────────────── */}
+      <div className="flex items-center justify-between">
+        <div>
+          <h1 className="text-base font-semibold text-white">Executive Report</h1>
+          <p className="text-xs text-gray-500 mt-0.5">Auto-generated from live project data · {new Date().toLocaleDateString('en-US', { month: 'long', day: 'numeric', year: 'numeric' })}</p>
+        </div>
+        <Button onClick={exportPDF} disabled={exportingPDF}
+          className="bg-blue-600 hover:bg-blue-700 gap-2">
+          <Download className="w-4 h-4" />
+          {exportingPDF ? 'Generating PDF…' : 'Export PDF'}
+        </Button>
+      </div>
 
       {/* ── Wave Configuration ─────────────────────────── */}
       <div className="card-glow bg-[#070d16] rounded-xl p-5">
