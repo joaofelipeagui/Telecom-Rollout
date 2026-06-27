@@ -37,6 +37,8 @@ export default function ProjectPage({ params }: { params: Promise<{ id: string }
   const searchParams = useSearchParams()
   const readonly = searchParams.get('share') === '1'
 
+  const tabParam = searchParams.get('tab') ?? undefined
+
   const [project, setProject]       = useState<Project | null>(null)
   const [user, setUser]             = useState<UserProfile | null>(null)
   const [userLoaded, setUserLoaded] = useState(false)
@@ -219,7 +221,7 @@ export default function ProjectPage({ params }: { params: Promise<{ id: string }
         ) : effectiveRole === 'sdwan_engineer' ? (
           <SDWANEngineerView project={project} onUpdate={reload} />
         ) : effectiveRole === 'solutions_director' ? (
-          <Tabs defaultValue="report">
+          <Tabs defaultValue={tabParam ?? "report"}>
             <TabsList className="bg-gray-900 border border-gray-800 mb-4 flex-wrap h-auto gap-0.5">
               <TabsTrigger value="report"    className="data-[state=active]:bg-gray-800 text-xs">
                 <BarChart3 className="w-3.5 h-3.5 mr-1" />Executive Report
@@ -244,7 +246,7 @@ export default function ProjectPage({ params }: { params: Promise<{ id: string }
           </Tabs>
         ) : (
           /* program_manager + solutions_manager: full tabs */
-          <Tabs defaultValue="sites">
+          <Tabs defaultValue={tabParam ?? "sites"}>
             <TabsList className="bg-gray-900 border border-gray-800 flex-wrap h-auto gap-0.5">
               <TabsTrigger value="sites"       className="data-[state=active]:bg-gray-800 text-xs">Sites</TabsTrigger>
               <TabsTrigger value="dia"         className="data-[state=active]:bg-gray-800 text-xs">DIA / Connectivity</TabsTrigger>
