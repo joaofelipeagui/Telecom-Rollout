@@ -89,25 +89,25 @@ export default function Home() {
               {/* KPI overlay */}
               <div className="absolute top-4 left-4 grid grid-cols-2 gap-2">
                 {[
-                  { label: 'Total Sites', value: totalSites, icon: Globe, color: 'text-white' },
-                  { label: 'Completed', value: completed, icon: CheckCircle, color: 'text-green-400' },
-                  { label: 'In Progress', value: inProgress, icon: Clock, color: 'text-blue-400' },
-                  { label: 'Blocked', value: blocked, icon: AlertTriangle, color: 'text-red-400' },
-                ].map(({ label, value, icon: Icon, color }) => (
-                  <div key={label} className="bg-gray-900/90 backdrop-blur border border-gray-700/50 rounded-xl px-4 py-3">
-                    <div className={`text-2xl font-bold ${color}`}>
+                  { label: 'Total Sites', value: totalSites, icon: Globe, color: 'text-white', dot: '' },
+                  { label: 'Completed', value: completed, icon: CheckCircle, color: 'text-green-400', dot: 'dot-green' },
+                  { label: 'In Progress', value: inProgress, icon: Clock, color: 'text-blue-400', dot: 'dot-blue' },
+                  { label: 'Blocked', value: blocked, icon: AlertTriangle, color: 'text-red-400', dot: 'dot-red' },
+                ].map(({ label, value, icon: Icon, color, dot }) => (
+                  <div key={label} className="card-glow bg-[#070d16]/95 backdrop-blur rounded-xl px-4 py-3">
+                    <div className={`text-2xl font-bold ${color} tracking-tight`}>
                       <AnimatedCounter value={value} />
                     </div>
-                    <div className="flex items-center gap-1 mt-0.5">
-                      <Icon className={`w-3 h-3 ${color}`} />
-                      <span className="text-xs text-gray-400">{label}</span>
+                    <div className="flex items-center gap-1.5 mt-1">
+                      <div className={`w-1.5 h-1.5 rounded-full ${color.replace('text-', 'bg-')} ${dot}`} />
+                      <span className="text-label">{label}</span>
                     </div>
                   </div>
                 ))}
               </div>
 
               {/* Progress bar overlay */}
-              <div className="absolute top-4 right-4 bg-gray-900/90 backdrop-blur border border-gray-700/50 rounded-xl px-4 py-3 w-52">
+              <div className="absolute top-4 right-4 card-glow bg-[#070d16]/95 backdrop-blur rounded-xl px-4 py-3 w-52">
                 <div className="flex justify-between text-xs mb-2">
                   <span className="text-gray-400">Overall Progress</span>
                   <span className="text-white font-bold"><AnimatedCounter value={progress} suffix="%" /></span>

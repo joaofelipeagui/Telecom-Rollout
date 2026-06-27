@@ -128,3 +128,41 @@
     @apply font-sans;
   }
 }
+
+/* Subtle dot grid texture for panel backgrounds */
+.panel-texture {
+  background-color: #0a0f1a;
+  background-image: radial-gradient(circle, #1e2a3a 1px, transparent 1px);
+  background-size: 24px 24px;
+}
+
+/* Glowing card border effect */
+.card-glow {
+  border: 1px solid rgba(59, 130, 246, 0.15);
+  box-shadow: 0 0 0 1px rgba(59, 130, 246, 0.05), inset 0 1px 0 rgba(255,255,255,0.04);
+}
+
+/* Status glow dots */
+.dot-green  { box-shadow: 0 0 6px #22c55e88; }
+.dot-blue   { box-shadow: 0 0 6px #3b82f688; }
+.dot-red    { box-shadow: 0 0 6px #ef444488; }
+.dot-yellow { box-shadow: 0 0 6px #eab30888; }
+
+/* Sidebar glow line */
+.sidebar-active-glow {
+  box-shadow: inset 3px 0 0 #3b82f6, inset 0 0 20px rgba(59,130,246,0.08);
+}
+
+/* Text contrast improvements */
+.text-label    { color: #94a3b8; font-size: 0.7rem; font-weight: 500; letter-spacing: 0.06em; text-transform: uppercase; }
+.text-value    { color: #f1f5f9; font-size: 1.5rem; font-weight: 700; }
+.text-subvalue { color: #64748b; font-size: 0.75rem; }
+
+/* Scrollbar styling */
+::-webkit-scrollbar { width: 4px; height: 4px; }
+::-webkit-scrollbar-track { background: transparent; }
+::-webkit-scrollbar-thumb { background: #1e3a5f; border-radius: 4px; }
+::-webkit-scrollbar-thumb:hover { background: #2563eb; }
+
+/* Smooth page transitions */
+* { transition-property: background-color, border-color, opacity; transition-duration: 150ms; }
