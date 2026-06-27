@@ -4,7 +4,7 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/u
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
-import { Project, Site, PROVIDERS } from '@/lib/types'
+import { Project, Site, PROVIDERS, Wave } from '@/lib/types'
 import { Upload, Loader2 } from 'lucide-react'
 
 interface Props {
@@ -17,14 +17,18 @@ function parseSitesCSV(text: string): Site[] {
   const lines = text.split('\n').filter(l => l.trim())
   const header = lines[0].toLowerCase().split(/[,;]/).map(h => h.trim())
 
-  const nameIdx = header.findIndex(h => h.includes('name') || h.includes('nome'))
+  const nameIdx    = header.findIndex(h => h.includes('name') || h.includes('nome'))
   const addressIdx = header.findIndex(h => h.includes('address') || h.includes('endereco') || h.includes('endereço'))
-  const cityIdx = header.findIndex(h => h.includes('city') || h.includes('cidade'))
-  const stateIdx = header.findIndex(h => h.includes('state') || h.includes('estado') || h === 'uf')
+  const cityIdx    = header.findIndex(h => h.includes('city') || h.includes('cidade'))
+  const stateIdx   = header.findIndex(h => h.includes('state') || h.includes('estado') || h === 'uf')
   const countryIdx = header.findIndex(h => h.includes('country') || h.includes('pais') || h.includes('país'))
+  const waveIdx    = header.findIndex(h => h.includes('wave'))
 
   return lines.slice(1).map((line, i) => {
-    const cols = line.split(/[,;]/).map(c => c.trim().replace(/^"|"$/g, ''))
+    // Handle quoted fields (e.g. "123 Main St, Suite 4")
+    const cols = line.match(/(".*?"|[^,]+)(?=,|$)/g)?.map(c => c.trim().replace(/^"|"$/g, '')) ?? line.split(',').map(c => c.trim())
+    const rawWave = waveIdx >= 0 ? parseInt(cols[waveIdx] ?? '') : NaN
+    const wave = (rawWave === 1 || rawWave === 2 || rawWave === 3) ? rawWave as Wave : undefined
     return {
       id: `site_${Date.now()}_${i}`,
       name: cols[nameIdx] || `Site ${i + 1}`,
@@ -34,6 +38,7 @@ function parseSitesCSV(text: string): Site[] {
       country: cols[countryIdx] || 'Brazil',
       status: 'pending',
       dias: {},
+      wave,
       createdAt: new Date().toISOString(),
     }
   })
