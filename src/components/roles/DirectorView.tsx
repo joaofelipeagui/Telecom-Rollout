@@ -1,17 +1,13 @@
 'use client'
-import { useState } from 'react'
 import { Project, PROVIDERS } from '@/lib/types'
 import { getSiteStats } from '@/lib/store'
 import { Button } from '@/components/ui/button'
 import { generateKMZ, downloadBlob } from '@/lib/kmz'
-import { BarChart3, Download, Loader2, FileText, TrendingUp, AlertTriangle, CheckCircle, Shield } from 'lucide-react'
+import { Download, TrendingUp, AlertTriangle, CheckCircle, Shield } from 'lucide-react'
 
 interface Props { project: Project }
 
 export function DirectorView({ project }: Props) {
-  const [generating, setGenerating] = useState(false)
-  const [report, setReport] = useState('')
-
   const stats = getSiteStats(project.sites)
   const progress = stats.total ? Math.round((stats.completed / stats.total) * 100) : 0
   const diaProgress = stats.totalDIA ? Math.round((stats.confirmedDIA / stats.totalDIA) * 100) : 0
@@ -29,29 +25,6 @@ export function DirectorView({ project }: Props) {
   const diversityTotal = project.sites.filter(s =>
     Object.values(s.dias).some(d => d.status === 'diverse_confirmed')
   ).length
-
-  async function generateReport() {
-    setGenerating(true)
-    try {
-      const summary = {
-        project: project.name,
-        customer: project.customer,
-        stats,
-        progress,
-        diaProgress,
-        providerStats,
-        diversityTotal,
-        blockedSites: project.sites.filter(s => s.status === 'blocked').map(s => `${s.name} (${s.city})`),
-      }
-      const res = await fetch('/api/ai', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ type: 'status_report', payload: { projectData: summary } })
-      })
-      const { result } = await res.json()
-      setReport(result)
-    } finally { setGenerating(false) }
-  }
 
   async function handleKMZ() {
     const blob = await generateKMZ(project.sites, project.name)
@@ -119,25 +92,11 @@ export function DirectorView({ project }: Props) {
 
       {/* Actions */}
       <div className="flex gap-3">
-        <Button onClick={generateReport} disabled={generating} className="bg-yellow-600 hover:bg-yellow-700">
-          {generating ? <Loader2 className="w-4 h-4 mr-2 animate-spin" /> : <FileText className="w-4 h-4 mr-2" />}
-          {generating ? 'Generating...' : 'AI Status Report'}
-        </Button>
         <Button onClick={handleKMZ} variant="outline" className="border-gray-700 text-gray-300">
           <Download className="w-4 h-4 mr-2" />
           Export All KMZ
         </Button>
       </div>
-
-      {report && (
-        <div className="bg-gray-900 border border-yellow-800/30 rounded-xl p-5">
-          <div className="flex items-center gap-2 mb-3">
-            <BarChart3 className="w-4 h-4 text-yellow-400" />
-            <span className="text-sm font-semibold text-white">Executive Status Report</span>
-          </div>
-          <pre className="text-sm text-gray-300 whitespace-pre-wrap font-sans leading-relaxed">{report}</pre>
-        </div>
-      )}
     </div>
   )
 }
