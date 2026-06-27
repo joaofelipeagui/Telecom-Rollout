@@ -1,6 +1,7 @@
 'use client'
 import { useEffect, useState, use } from 'react'
 import { useSearchParams } from 'next/navigation'
+import { ToastProvider, toast } from '@/components/ui/toast'
 import { getProject, saveProject, getSiteStats } from '@/lib/store'
 import { Project, UserProfile, ROLE_LABELS, ROLE_COLORS } from '@/lib/types'
 import { getCurrentUser, clearCurrentUser } from '@/lib/user'
@@ -12,7 +13,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
 import { Progress } from '@/components/ui/progress'
 import {
   ArrowLeft, Download, Bot, Plus, LogOut, Package,
-  BarChart3, AlertTriangle, GitBranch, Clock, Share2, FileSpreadsheet, Eye
+  BarChart3, AlertTriangle, GitBranch, Clock, Share2, FileSpreadsheet, Eye, X, Lightbulb
 } from 'lucide-react'
 import Link from 'next/link'
 import { SitesTable } from '@/components/SitesTable'
@@ -41,6 +42,12 @@ export default function ProjectPage({ params }: { params: Promise<{ id: string }
   const [userLoaded, setUserLoaded] = useState(false)
   const [addSiteOpen, setAddSiteOpen] = useState(false)
   const [copied, setCopied]         = useState(false)
+  const [tipDismissed, setTipDismissed] = useState(true)
+
+  useEffect(() => {
+    const dismissed = localStorage.getItem('onboarding_tip_dismissed')
+    if (!dismissed) setTipDismissed(false)
+  }, [])
 
   useEffect(() => {
     setProject(getProject(id))
@@ -54,17 +61,20 @@ export default function ProjectPage({ params }: { params: Promise<{ id: string }
     if (!project) return
     const blob = await generateKMZ(project.sites, project.name.replace(/\s+/g, '_'))
     downloadBlob(blob, `${project.name.replace(/\s+/g, '_')}.kmz`)
+    toast('KMZ file downloaded')
   }
 
   function handleCSV() {
     if (!project) return
     exportProjectCSV(project)
+    toast('CSV exported successfully')
   }
 
   function handleShare() {
     const url = `${window.location.origin}/projects/${id}?share=1`
     navigator.clipboard.writeText(url).then(() => {
       setCopied(true)
+      toast('Read-only link copied to clipboard', 'info')
       setTimeout(() => setCopied(false), 2000)
     })
   }
@@ -84,8 +94,27 @@ export default function ProjectPage({ params }: { params: Promise<{ id: string }
 
   const effectiveRole = user?.role ?? 'solutions_director'
 
+  function dismissTip() {
+    localStorage.setItem('onboarding_tip_dismissed', '1')
+    setTipDismissed(true)
+  }
+
   return (
+    <ToastProvider>
     <div className="min-h-screen bg-gray-950">
+      {/* Onboarding tip */}
+      {!tipDismissed && !readonly && (
+        <div className="bg-blue-950/60 border-b border-blue-800/40 px-6 py-2.5 flex items-center gap-3">
+          <Lightbulb className="w-4 h-4 text-blue-400 flex-shrink-0" />
+          <p className="text-xs text-blue-200 flex-1">
+            <span className="font-semibold">Quick tips:</span>{' '}
+            Click any site row to open its detail panel · Change status directly from the dropdown on each row · Use <span className="font-medium">Filters</span> to narrow by wave or country · <span className="font-medium">Share</span> creates a read-only link for stakeholders
+          </p>
+          <button onClick={dismissTip} className="text-blue-400 hover:text-blue-200 flex-shrink-0">
+            <X className="w-4 h-4" />
+          </button>
+        </div>
+      )}
       {/* Top bar */}
       <div className="border-b border-gray-800 bg-gray-900/50 backdrop-blur sticky top-0 z-20">
         <div className="max-w-7xl mx-auto px-6 py-3">
@@ -264,5 +293,6 @@ export default function ProjectPage({ params }: { params: Promise<{ id: string }
         />
       )}
     </div>
+    </ToastProvider>
   )
 }
