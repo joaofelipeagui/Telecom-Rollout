@@ -2,14 +2,26 @@
 import { useState, useEffect, useRef } from 'react'
 import { Lock, Eye, EyeOff, Shield, Mail, ArrowLeft, CheckCircle, Loader2 } from 'lucide-react'
 
-const STORAGE_KEY  = 'telecom_pm_access'
-const OWNER_EMAIL  = process.env.NEXT_PUBLIC_OWNER_EMAIL ?? 'felipe.aguiar29@gmail.com'
+const STORAGE_KEY    = 'telecom_pm_access'
+const ATTEMPTS_KEY   = 'telecom_pm_attempts'
+const LOCKOUT_KEY    = 'telecom_pm_lockout'
+const MAX_ATTEMPTS   = 5
+const LOCKOUT_MS     = 15 * 60 * 1000 // 15 minutes
+const OWNER_EMAIL    = process.env.NEXT_PUBLIC_OWNER_EMAIL ?? 'felipe.aguiar29@gmail.com'
 
-function getValidCodes(): string[] {
-  const multi  = process.env.NEXT_PUBLIC_ACCESS_CODES ?? ''
-  const single = process.env.NEXT_PUBLIC_ACCESS_CODE  ?? 'DEMO2025'
-  const codes  = multi ? multi.split(',') : [single]
-  return codes.map(c => c.trim().toUpperCase()).filter(Boolean)
+function getAttempts(): number  { return parseInt(localStorage.getItem(ATTEMPTS_KEY) ?? '0') }
+function getLockoutUntil(): number { return parseInt(localStorage.getItem(LOCKOUT_KEY) ?? '0') }
+function isLockedOut(): boolean { return Date.now() < getLockoutUntil() }
+function lockoutRemaining(): number { return Math.ceil((getLockoutUntil() - Date.now()) / 60000) }
+
+function recordFailure() {
+  const n = getAttempts() + 1
+  localStorage.setItem(ATTEMPTS_KEY, String(n))
+  if (n >= MAX_ATTEMPTS) localStorage.setItem(LOCKOUT_KEY, String(Date.now() + LOCKOUT_MS))
+}
+function clearAttempts() {
+  localStorage.removeItem(ATTEMPTS_KEY)
+  localStorage.removeItem(LOCKOUT_KEY)
 }
 
 export function AccessGate({ children }: { children: React.ReactNode }) {
@@ -22,6 +34,8 @@ export function AccessGate({ children }: { children: React.ReactNode }) {
   const [error,      setError]      = useState(false)
   const [shaking,    setShaking]    = useState(false)
   const [validating, setValidating] = useState(false)
+  const [locked,     setLocked]     = useState(false)
+  const [attemptsLeft, setAttemptsLeft] = useState(MAX_ATTEMPTS)
   const inputRef = useRef<HTMLInputElement>(null)
 
   // Request form state
@@ -34,26 +48,42 @@ export function AccessGate({ children }: { children: React.ReactNode }) {
   useEffect(() => {
     const stored = sessionStorage.getItem(STORAGE_KEY)
     setGranted(stored === 'true')
+    setLocked(isLockedOut())
+    setAttemptsLeft(Math.max(0, MAX_ATTEMPTS - getAttempts()))
   }, [])
+
+  // Countdown timer — re-check lockout every 30s
+  useEffect(() => {
+    if (!locked) return
+    const t = setInterval(() => {
+      if (!isLockedOut()) { setLocked(false); clearAttempts(); setAttemptsLeft(MAX_ATTEMPTS) }
+    }, 30000)
+    return () => clearInterval(t)
+  }, [locked])
 
   useEffect(() => {
     if (granted === false && view === 'code') setTimeout(() => inputRef.current?.focus(), 100)
   }, [granted, view])
 
   async function attempt() {
-    if (!input.trim()) return
+    if (!input.trim() || locked) return
     setValidating(true)
     try {
-      const res  = await fetch('/api/validate-code', {
+      const res = await fetch('/api/validate-code', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ code: input.trim() }),
       })
       const { valid } = await res.json()
       if (valid) {
+        clearAttempts()
         sessionStorage.setItem(STORAGE_KEY, 'true')
         setGranted(true)
       } else {
+        recordFailure()
+        const nowLocked = isLockedOut()
+        setLocked(nowLocked)
+        setAttemptsLeft(Math.max(0, MAX_ATTEMPTS - getAttempts()))
         setError(true)
         setShaking(true)
         setInput('')
@@ -116,31 +146,46 @@ export function AccessGate({ children }: { children: React.ReactNode }) {
                 <h1 className="text-lg font-bold text-white mb-1">Telecom Rollout PM</h1>
                 <p className="text-sm text-gray-400">Enter your access code to continue</p>
               </div>
-              <div className="space-y-3">
-                <div className="relative">
-                  <Lock className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-500" />
-                  <input
-                    ref={inputRef}
-                    type={showCode ? 'text' : 'password'}
-                    value={input}
-                    onChange={e => { setInput(e.target.value); setError(false) }}
-                    onKeyDown={e => e.key === 'Enter' && attempt()}
-                    placeholder="Access code"
-                    className={`w-full pl-9 pr-10 py-2.5 rounded-lg bg-gray-800 border text-sm text-white placeholder:text-gray-600 outline-none transition-colors ${
-                      error ? 'border-red-600 focus:border-red-500' : 'border-gray-700 focus:border-blue-500'
-                    }`}
-                  />
-                  <button type="button" onClick={() => setShowCode(v => !v)}
-                    className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-500 hover:text-gray-300 transition-colors">
-                    {showCode ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
+
+              {locked ? (
+                <div className="rounded-lg bg-red-950/50 border border-red-800 px-4 py-4 text-center space-y-1">
+                  <p className="text-sm font-semibold text-red-400">Too many failed attempts</p>
+                  <p className="text-xs text-red-500">Access locked for {lockoutRemaining()} minute{lockoutRemaining() !== 1 ? 's' : ''}. Try again later.</p>
+                </div>
+              ) : (
+                <div className="space-y-3">
+                  <div className="relative">
+                    <Lock className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-500" />
+                    <input
+                      ref={inputRef}
+                      type={showCode ? 'text' : 'password'}
+                      value={input}
+                      onChange={e => { setInput(e.target.value); setError(false) }}
+                      onKeyDown={e => e.key === 'Enter' && attempt()}
+                      placeholder="Access code"
+                      className={`w-full pl-9 pr-10 py-2.5 rounded-lg bg-gray-800 border text-sm text-white placeholder:text-gray-600 outline-none transition-colors ${
+                        error ? 'border-red-600 focus:border-red-500' : 'border-gray-700 focus:border-blue-500'
+                      }`}
+                    />
+                    <button type="button" onClick={() => setShowCode(v => !v)}
+                      className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-500 hover:text-gray-300 transition-colors">
+                      {showCode ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
+                    </button>
+                  </div>
+                  {error && (
+                    <p className="text-xs text-red-400 text-center">
+                      Incorrect code —{' '}
+                      {attemptsLeft > 0
+                        ? <span>{attemptsLeft} attempt{attemptsLeft !== 1 ? 's' : ''} remaining</span>
+                        : <span>account locked</span>}
+                    </p>
+                  )}
+                  <button onClick={attempt} disabled={validating}
+                    className="w-full py-2.5 rounded-lg bg-blue-600 hover:bg-blue-500 disabled:opacity-60 text-sm font-semibold text-white transition-colors flex items-center justify-center gap-2">
+                    {validating ? <><Loader2 className="w-4 h-4 animate-spin" /> Checking…</> : 'Enter'}
                   </button>
                 </div>
-                {error && <p className="text-xs text-red-400 text-center">Incorrect access code — please try again</p>}
-                <button onClick={attempt} disabled={validating}
-                  className="w-full py-2.5 rounded-lg bg-blue-600 hover:bg-blue-500 disabled:opacity-60 text-sm font-semibold text-white transition-colors flex items-center justify-center gap-2">
-                  {validating ? <><Loader2 className="w-4 h-4 animate-spin" /> Checking…</> : 'Enter'}
-                </button>
-              </div>
+              )}
               <div className="mt-5 pt-4 border-t border-gray-800 space-y-3">
                 <button onClick={() => setView('request')}
                   className="w-full py-2.5 rounded-lg bg-gray-800 hover:bg-gray-700 border border-gray-700 hover:border-gray-500 text-sm font-medium text-gray-300 hover:text-white transition-all flex items-center justify-center gap-2">
