@@ -25,6 +25,7 @@ import { FieldEngineerView } from '@/components/roles/FieldEngineerView'
 import { TelcoEngineerView } from '@/components/roles/TelcoEngineerView'
 import { SDWANEngineerView } from '@/components/roles/SDWANEngineerView'
 import { DirectorView } from '@/components/roles/DirectorView'
+import { ExecDashboard } from '@/components/ExecDashboard'
 import { LogisticsView } from '@/components/LogisticsView'
 import { ExecutiveReport } from '@/components/ExecutiveReport'
 import { EscalationTracker } from '@/components/EscalationTracker'
@@ -281,11 +282,12 @@ export default function ProjectPage({ params }: { params: Promise<{ id: string }
 
         ) : effectiveRole === 'solutions_manager' ? (
           /* Solutions Manager: account health + delivery assurance + customer-facing views */
-          <Tabs defaultValue={tabParam ?? "report"}>
+          <Tabs defaultValue={tabParam ?? "exec"}>
             <TabsList className="bg-gray-900 border border-gray-800 mb-4 flex-wrap h-auto gap-0.5">
-              <TabsTrigger value="report"      className="data-[state=active]:bg-gray-800 text-xs">
-                <BarChart3 className="w-3.5 h-3.5 mr-1" />Executive Report
+              <TabsTrigger value="exec"        className="data-[state=active]:bg-gray-800 text-xs">
+                <BarChart3 className="w-3.5 h-3.5 mr-1" />Exec Dashboard
               </TabsTrigger>
+              <TabsTrigger value="report"      className="data-[state=active]:bg-gray-800 text-xs">Report</TabsTrigger>
               <TabsTrigger value="sla"         className="data-[state=active]:bg-gray-800 text-xs">
                 <Bell className="w-3.5 h-3.5 mr-1" />
                 SLA Alerts {slaAlertCount > 0 && <span className="ml-1 bg-orange-600 text-white text-xs px-1.5 py-0.5 rounded-full">{slaAlertCount}</span>}
@@ -309,6 +311,7 @@ export default function ProjectPage({ params }: { params: Promise<{ id: string }
                 <Clock className="w-3.5 h-3.5 mr-1" />Changelog
               </TabsTrigger>
             </TabsList>
+            <TabsContent value="exec">         <ExecDashboard project={project} /></TabsContent>
             <TabsContent value="report">      <ExecutiveReport project={project} onUpdate={reload} /></TabsContent>
             <TabsContent value="sla">         <SLAAlerts project={project} /></TabsContent>
             <TabsContent value="carriers">    <CarrierScorecard project={project} /></TabsContent>
@@ -322,12 +325,13 @@ export default function ProjectPage({ params }: { params: Promise<{ id: string }
 
         ) : effectiveRole === 'solutions_director' ? (
           /* Solutions Director: strategic / portfolio view */
-          <Tabs defaultValue={tabParam ?? "director"}>
+          <Tabs defaultValue={tabParam ?? "exec"}>
             <TabsList className="bg-gray-900 border border-gray-800 mb-4 flex-wrap h-auto gap-0.5">
-              <TabsTrigger value="director"    className="data-[state=active]:bg-gray-800 text-xs">
-                <BarChart3 className="w-3.5 h-3.5 mr-1" />KPI Dashboard
+              <TabsTrigger value="exec"        className="data-[state=active]:bg-gray-800 text-xs">
+                <BarChart3 className="w-3.5 h-3.5 mr-1" />Exec Dashboard
               </TabsTrigger>
-              <TabsTrigger value="report"      className="data-[state=active]:bg-gray-800 text-xs">Executive Report</TabsTrigger>
+              <TabsTrigger value="director"    className="data-[state=active]:bg-gray-800 text-xs">Zone KPIs</TabsTrigger>
+              <TabsTrigger value="report"      className="data-[state=active]:bg-gray-800 text-xs">Report</TabsTrigger>
               <TabsTrigger value="sla"         className="data-[state=active]:bg-gray-800 text-xs">
                 <Bell className="w-3.5 h-3.5 mr-1" />
                 SLA Alerts {slaAlertCount > 0 && <span className="ml-1 bg-orange-600 text-white text-xs px-1.5 py-0.5 rounded-full">{slaAlertCount}</span>}
@@ -350,6 +354,7 @@ export default function ProjectPage({ params }: { params: Promise<{ id: string }
                 <Clock className="w-3.5 h-3.5 mr-1" />Changelog
               </TabsTrigger>
             </TabsList>
+            <TabsContent value="exec">         <ExecDashboard project={project} /></TabsContent>
             <TabsContent value="director">    <DirectorView project={project} /></TabsContent>
             <TabsContent value="report">      <ExecutiveReport project={project} onUpdate={reload} /></TabsContent>
             <TabsContent value="sla">         <SLAAlerts project={project} /></TabsContent>
