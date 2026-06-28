@@ -2,7 +2,8 @@
 import { useState, useEffect, useRef } from 'react'
 import { Lock, Eye, EyeOff, Shield, Mail, ArrowLeft, CheckCircle, Loader2 } from 'lucide-react'
 
-const STORAGE_KEY = 'telecom_pm_access'
+const STORAGE_KEY  = 'telecom_pm_access'
+const OWNER_EMAIL  = process.env.NEXT_PUBLIC_OWNER_EMAIL ?? 'felipe.aguiar29@gmail.com'
 
 function getValidCodes(): string[] {
   const multi  = process.env.NEXT_PUBLIC_ACCESS_CODES ?? ''
@@ -125,12 +126,14 @@ export function AccessGate({ children }: { children: React.ReactNode }) {
                   Enter
                 </button>
               </div>
-              <div className="mt-5 pt-4 border-t border-gray-800 text-center">
-                <p className="text-xs text-gray-500 mb-2">Don't have a code?</p>
+              <div className="mt-5 pt-4 border-t border-gray-800 space-y-3">
                 <button onClick={() => setView('request')}
-                  className="text-xs text-blue-400 hover:text-blue-300 font-medium transition-colors">
-                  Request access →
+                  className="w-full py-2.5 rounded-lg bg-gray-800 hover:bg-gray-700 border border-gray-700 hover:border-gray-500 text-sm font-medium text-gray-300 hover:text-white transition-all flex items-center justify-center gap-2">
+                  <Mail className="w-4 h-4" /> Request Access
                 </button>
+                <p className="text-center text-xs text-gray-600">
+                  Project owner: <a href={`mailto:${OWNER_EMAIL}`} className="text-gray-400 hover:text-blue-400 transition-colors">{OWNER_EMAIL}</a>
+                </p>
               </div>
             </>
           )}
@@ -140,7 +143,10 @@ export function AccessGate({ children }: { children: React.ReactNode }) {
             <>
               <div className="text-center mb-6">
                 <h1 className="text-lg font-bold text-white mb-1">Request Access</h1>
-                <p className="text-sm text-gray-400">Fill in your details and the owner will send you a code</p>
+                <p className="text-sm text-gray-400">
+                  Your request goes directly to{' '}
+                  <a href={`mailto:${OWNER_EMAIL}`} className="text-blue-400 hover:underline">{OWNER_EMAIL}</a>
+                </p>
               </div>
               <div className="space-y-3">
                 <input
