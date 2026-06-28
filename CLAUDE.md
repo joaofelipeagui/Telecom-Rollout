@@ -19,7 +19,7 @@ An AI-powered program management tool for enterprise telecom network rollouts, b
 | Framework | Next.js 16 App Router, TypeScript |
 | UI | Tailwind CSS, shadcn/ui, Lucide icons |
 | Maps | Mapbox GL JS (dark-v11) — world map with animated HTML markers and GeoJSON route lines |
-| AI | Google Gemini API (`gemini-2.0-flash`) — free tier |
+| AI | Anthropic Claude (`claude-sonnet-4-6`) via `@anthropic-ai/sdk` |
 | Export | jsPDF (PDF), JSZip (KMZ) |
 | Persistence | localStorage — no database, demo-friendly |
 | Deploy | Railway |
@@ -198,7 +198,7 @@ Files exist but AccessGate is NOT wired to layout.tsx. To re-enable: wrap `{chil
 | Variable | Purpose | Where |
 |---|---|---|
 | `NEXT_PUBLIC_MAPBOX_TOKEN` | Mapbox maps + geocoding | Railway + .env.local |
-| `GOOGLE_GENERATIVE_AI_API_KEY` | Gemini AI | Railway + .env.local |
+| `ANTHROPIC_API_KEY` | Claude AI | Railway + .env.local |
 | `NEXT_PUBLIC_ACCESS_CODE` | Access gate code | Railway + .env.local |
 | `OWNER_EMAIL` | Owner email for access gate | Railway + .env.local |
 | `RESEND_API_KEY` | Email delivery (not yet set) | Railway only |
