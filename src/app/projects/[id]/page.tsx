@@ -14,7 +14,7 @@ import { Progress } from '@/components/ui/progress'
 import {
   ArrowLeft, Download, Bot, Plus, LogOut, Package,
   BarChart3, AlertTriangle, GitBranch, Clock, Share2, FileSpreadsheet, Eye, X, Lightbulb,
-  Bell, Award, Activity
+  Bell, Award, Activity, Wifi as WifiIcon
 } from 'lucide-react'
 import Link from 'next/link'
 import { SitesTable } from '@/components/SitesTable'
@@ -254,7 +254,7 @@ export default function ProjectPage({ params }: { params: Promise<{ id: string }
           <Tabs defaultValue={tabParam ?? "dia"}>
             <TabsList className="bg-gray-900 border border-gray-800 mb-4 flex-wrap h-auto gap-0.5">
               <TabsTrigger value="dia"       className="data-[state=active]:bg-gray-800 text-xs">
-                <Activity className="w-3.5 h-3.5 mr-1" />DIA / Circuits
+                <WifiIcon className="w-3.5 h-3.5 mr-1" />DIA / Circuits
               </TabsTrigger>
               <TabsTrigger value="sla"       className="data-[state=active]:bg-gray-800 text-xs">
                 <Bell className="w-3.5 h-3.5 mr-1" />

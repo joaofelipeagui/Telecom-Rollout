@@ -37,8 +37,8 @@ export function LATAMMap({ sites, onSiteClick }: Props) {
       const map = new mapboxgl.Map({
         container: mapRef.current!,
         style: 'mapbox://styles/mapbox/dark-v11',
-        center: [-60, -15],
-        zoom: 2.8,
+        center: [10, 20],
+        zoom: 1.6,
         projection: 'mercator' as any,
       })
 
