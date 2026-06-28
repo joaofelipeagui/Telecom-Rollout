@@ -15,6 +15,11 @@ type EventType =
   | 'jitter_alert' | 'packet_loss'
   | 'bgp_down' | 'bgp_up'
   | 'interface_error' | 'recovered'
+  | 'vrrp_failover' | 'vrrp_restored'
+  | 'sdwan_steering' | 'sdwan_restored'
+  | 'bw_saturation' | 'bw_normal'
+  | 'maintenance_start' | 'maintenance_end'
+  | 'voip_mos_drop' | 'voip_mos_ok'
 
 interface NetEvent {
   id: string
@@ -54,8 +59,18 @@ const EVENT_TEMPLATES: Record<EventType, { severity: Severity; msgFn: (h: SiteHe
   packet_loss:    { severity: 'warning',   msgFn: h => `Packet loss detected — ${h.provider} circuit unstable`,            metricFn: h => `Loss: ${h.loss.toFixed(1)}%` },
   bgp_down:       { severity: 'critical',  msgFn: h => `BGP session dropped with ${h.provider} peer`,                     metricFn: _ => 'AS path lost' },
   bgp_up:         { severity: 'resolved',  msgFn: h => `BGP session re-established with ${h.provider}`,                   metricFn: _ => 'Routes received' },
-  interface_error:{ severity: 'warning',   msgFn: h => `Interface CRC errors on ${h.provider} WAN port`,                  metricFn: _ => 'CRC errors: ↑' },
-  recovered:      { severity: 'resolved',  msgFn: h => `Circuit fully recovered — ${h.provider} performing normally`,     metricFn: h => `RTT: ${h.latency}ms · Loss: 0%` },
+  interface_error:  { severity: 'warning',  msgFn: h => `Interface CRC errors on ${h.provider} WAN port`,                   metricFn: _ => 'CRC errors: ↑' },
+  recovered:        { severity: 'resolved', msgFn: h => `Circuit fully recovered — ${h.provider} performing normally`,      metricFn: h => `RTT: ${h.latency}ms · Loss: 0%` },
+  vrrp_failover:    { severity: 'critical', msgFn: h => `VRRP failover — backup router now ACTIVE at ${h.siteName}`,       metricFn: _ => 'Primary router unreachable' },
+  vrrp_restored:    { severity: 'resolved', msgFn: h => `VRRP restored — primary router back ACTIVE at ${h.siteName}`,    metricFn: _ => 'Failback complete' },
+  sdwan_steering:   { severity: 'warning',  msgFn: h => `SD-WAN steering: traffic moved from MPLS to internet path`,       metricFn: h => `${h.provider} MPLS SLA violated` },
+  sdwan_restored:   { severity: 'resolved', msgFn: h => `SD-WAN steering reverted — MPLS path restored on ${h.provider}`, metricFn: h => `RTT: ${h.latency}ms · SLA met` },
+  bw_saturation:    { severity: 'warning',  msgFn: h => `Bandwidth near saturation on ${h.provider} circuit`,             metricFn: _ => 'Utilisation: 94% of committed rate' },
+  bw_normal:        { severity: 'info',     msgFn: h => `Bandwidth utilisation returned to normal on ${h.provider}`,      metricFn: _ => 'Utilisation: 41%' },
+  maintenance_start:{ severity: 'info',     msgFn: h => `Carrier maintenance window started — ${h.provider}`,             metricFn: _ => 'Expected duration: 2h' },
+  maintenance_end:  { severity: 'resolved', msgFn: h => `Carrier maintenance completed — ${h.provider} circuit restored`, metricFn: _ => 'All paths up' },
+  voip_mos_drop:    { severity: 'warning',  msgFn: h => `VoIP quality degraded at ${h.siteName}`,                        metricFn: _ => 'MOS: 2.8 (threshold 3.5)' },
+  voip_mos_ok:      { severity: 'resolved', msgFn: h => `VoIP quality restored at ${h.siteName}`,                        metricFn: _ => 'MOS: 4.2' },
 }
 
 const SEVERITY_STYLE: Record<Severity, { row: string; badge: string; text: string; dot: string }> = {
@@ -109,11 +124,22 @@ function generateEvent(healths: SiteHealth[]): NetEvent {
   // Event pool weighted by site state
   let typePool: EventType[]
   if (site.state === 'down') {
-    typePool = ['link_down', 'bgp_down', 'link_down', 'packet_loss', 'bgp_up', 'link_up']
+    typePool = [
+      'link_down', 'link_down', 'bgp_down', 'vrrp_failover',
+      'packet_loss', 'bgp_up', 'link_up', 'vrrp_restored',
+    ]
   } else if (site.state === 'degraded') {
-    typePool = ['high_latency', 'jitter_alert', 'packet_loss', 'interface_error', 'high_latency', 'latency_ok']
+    typePool = [
+      'high_latency', 'high_latency', 'jitter_alert', 'packet_loss',
+      'sdwan_steering', 'bw_saturation', 'voip_mos_drop',
+      'interface_error', 'latency_ok', 'sdwan_restored',
+    ]
   } else {
-    typePool = ['latency_ok', 'recovered', 'latency_ok', 'latency_ok', 'high_latency', 'jitter_alert']
+    typePool = [
+      'latency_ok', 'latency_ok', 'latency_ok', 'recovered',
+      'bw_normal', 'voip_mos_ok', 'maintenance_start', 'maintenance_end',
+      'high_latency', 'jitter_alert', 'bw_saturation',
+    ]
   }
   const type = pickRand(typePool)
   const tmpl = EVENT_TEMPLATES[type]
