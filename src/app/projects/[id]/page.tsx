@@ -221,22 +221,16 @@ export default function ProjectPage({ params }: { params: Promise<{ id: string }
         {/* Role-specific views */}
         {effectiveRole === 'field_engineer' ? (
           <FieldEngineerView project={project} onUpdate={reload} />
-        ) : effectiveRole === 'telco_engineer' ? (
-          <TelcoEngineerView project={project} onUpdate={reload} />
+
         ) : effectiveRole === 'sdwan_engineer' ? (
           <SDWANEngineerView project={project} onUpdate={reload} />
-        ) : effectiveRole === 'solutions_director' ? (
-          <Tabs defaultValue={tabParam ?? "report"}>
+
+        ) : effectiveRole === 'telco_engineer' ? (
+          /* Telco Engineer: circuit specialist — DIA workspace + SLA deadlines + carrier perf + live health */
+          <Tabs defaultValue={tabParam ?? "dia"}>
             <TabsList className="bg-gray-900 border border-gray-800 mb-4 flex-wrap h-auto gap-0.5">
-              <TabsTrigger value="report"    className="data-[state=active]:bg-gray-800 text-xs">
-                <BarChart3 className="w-3.5 h-3.5 mr-1" />Executive Report
-              </TabsTrigger>
-              <TabsTrigger value="gantt"     className="data-[state=active]:bg-gray-800 text-xs">
-                <GitBranch className="w-3.5 h-3.5 mr-1" />Gantt
-              </TabsTrigger>
-              <TabsTrigger value="escalations" className="data-[state=active]:bg-gray-800 text-xs">
-                <AlertTriangle className="w-3.5 h-3.5 mr-1" />
-                Escalations {openEscalations > 0 && <span className="ml-1 bg-red-600 text-white text-xs px-1.5 py-0.5 rounded-full">{openEscalations}</span>}
+              <TabsTrigger value="dia"       className="data-[state=active]:bg-gray-800 text-xs">
+                <Activity className="w-3.5 h-3.5 mr-1" />DIA / Circuits
               </TabsTrigger>
               <TabsTrigger value="sla"       className="data-[state=active]:bg-gray-800 text-xs">
                 <Bell className="w-3.5 h-3.5 mr-1" />
@@ -248,22 +242,101 @@ export default function ProjectPage({ params }: { params: Promise<{ id: string }
               <TabsTrigger value="network"   className="data-[state=active]:bg-gray-800 text-xs">
                 <Activity className="w-3.5 h-3.5 mr-1" />Live Network
               </TabsTrigger>
-              <TabsTrigger value="director"  className="data-[state=active]:bg-gray-800 text-xs">KPI Dashboard</TabsTrigger>
+              <TabsTrigger value="sites"     className="data-[state=active]:bg-gray-800 text-xs">Sites</TabsTrigger>
               <TabsTrigger value="changelog" className="data-[state=active]:bg-gray-800 text-xs">
-                <Clock className="w-3.5 h-3.5 mr-1" />Change Log
+                <Clock className="w-3.5 h-3.5 mr-1" />Changelog
+              </TabsTrigger>
+            </TabsList>
+            <TabsContent value="dia">       <TelcoEngineerView project={project} onUpdate={reload} /></TabsContent>
+            <TabsContent value="sla">       <SLAAlerts project={project} /></TabsContent>
+            <TabsContent value="carriers">  <CarrierScorecard project={project} /></TabsContent>
+            <TabsContent value="network">   <NetworkMonitor project={project} /></TabsContent>
+            <TabsContent value="sites">     <SitesTable project={project} onUpdate={reload} /></TabsContent>
+            <TabsContent value="changelog"> <ChangeLog project={project} /></TabsContent>
+          </Tabs>
+
+        ) : effectiveRole === 'solutions_manager' ? (
+          /* Solutions Manager: account health + delivery assurance + customer-facing views */
+          <Tabs defaultValue={tabParam ?? "report"}>
+            <TabsList className="bg-gray-900 border border-gray-800 mb-4 flex-wrap h-auto gap-0.5">
+              <TabsTrigger value="report"      className="data-[state=active]:bg-gray-800 text-xs">
+                <BarChart3 className="w-3.5 h-3.5 mr-1" />Executive Report
+              </TabsTrigger>
+              <TabsTrigger value="sla"         className="data-[state=active]:bg-gray-800 text-xs">
+                <Bell className="w-3.5 h-3.5 mr-1" />
+                SLA Alerts {slaAlertCount > 0 && <span className="ml-1 bg-orange-600 text-white text-xs px-1.5 py-0.5 rounded-full">{slaAlertCount}</span>}
+              </TabsTrigger>
+              <TabsTrigger value="carriers"    className="data-[state=active]:bg-gray-800 text-xs">
+                <Award className="w-3.5 h-3.5 mr-1" />Carrier Score
+              </TabsTrigger>
+              <TabsTrigger value="network"     className="data-[state=active]:bg-gray-800 text-xs">
+                <Activity className="w-3.5 h-3.5 mr-1" />Live Network
+              </TabsTrigger>
+              <TabsTrigger value="escalations" className="data-[state=active]:bg-gray-800 text-xs">
+                <AlertTriangle className="w-3.5 h-3.5 mr-1" />
+                Escalations {openEscalations > 0 && <span className="ml-1 bg-red-600 text-white text-xs px-1.5 py-0.5 rounded-full">{openEscalations}</span>}
+              </TabsTrigger>
+              <TabsTrigger value="gantt"       className="data-[state=active]:bg-gray-800 text-xs">
+                <GitBranch className="w-3.5 h-3.5 mr-1" />Gantt
+              </TabsTrigger>
+              <TabsTrigger value="sites"       className="data-[state=active]:bg-gray-800 text-xs">Sites</TabsTrigger>
+              <TabsTrigger value="dia"         className="data-[state=active]:bg-gray-800 text-xs">DIA Overview</TabsTrigger>
+              <TabsTrigger value="changelog"   className="data-[state=active]:bg-gray-800 text-xs">
+                <Clock className="w-3.5 h-3.5 mr-1" />Changelog
               </TabsTrigger>
             </TabsList>
             <TabsContent value="report">      <ExecutiveReport project={project} onUpdate={reload} /></TabsContent>
-            <TabsContent value="gantt">       <GanttView project={project} /></TabsContent>
-            <TabsContent value="escalations"> <EscalationTracker project={project} onUpdate={reload} readonly={readonly} /></TabsContent>
             <TabsContent value="sla">         <SLAAlerts project={project} /></TabsContent>
             <TabsContent value="carriers">    <CarrierScorecard project={project} /></TabsContent>
             <TabsContent value="network">     <NetworkMonitor project={project} /></TabsContent>
-            <TabsContent value="director">    <DirectorView project={project} /></TabsContent>
+            <TabsContent value="escalations"> <EscalationTracker project={project} onUpdate={reload} readonly={readonly} /></TabsContent>
+            <TabsContent value="gantt">       <GanttView project={project} /></TabsContent>
+            <TabsContent value="sites">       <SitesTable project={project} onUpdate={reload} /></TabsContent>
+            <TabsContent value="dia">         <DIAMatrix project={project} onUpdate={reload} /></TabsContent>
             <TabsContent value="changelog">   <ChangeLog project={project} /></TabsContent>
           </Tabs>
+
+        ) : effectiveRole === 'solutions_director' ? (
+          /* Solutions Director: strategic / portfolio view */
+          <Tabs defaultValue={tabParam ?? "director"}>
+            <TabsList className="bg-gray-900 border border-gray-800 mb-4 flex-wrap h-auto gap-0.5">
+              <TabsTrigger value="director"    className="data-[state=active]:bg-gray-800 text-xs">
+                <BarChart3 className="w-3.5 h-3.5 mr-1" />KPI Dashboard
+              </TabsTrigger>
+              <TabsTrigger value="report"      className="data-[state=active]:bg-gray-800 text-xs">Executive Report</TabsTrigger>
+              <TabsTrigger value="sla"         className="data-[state=active]:bg-gray-800 text-xs">
+                <Bell className="w-3.5 h-3.5 mr-1" />
+                SLA Alerts {slaAlertCount > 0 && <span className="ml-1 bg-orange-600 text-white text-xs px-1.5 py-0.5 rounded-full">{slaAlertCount}</span>}
+              </TabsTrigger>
+              <TabsTrigger value="carriers"    className="data-[state=active]:bg-gray-800 text-xs">
+                <Award className="w-3.5 h-3.5 mr-1" />Carrier Score
+              </TabsTrigger>
+              <TabsTrigger value="network"     className="data-[state=active]:bg-gray-800 text-xs">
+                <Activity className="w-3.5 h-3.5 mr-1" />Live Network
+              </TabsTrigger>
+              <TabsTrigger value="escalations" className="data-[state=active]:bg-gray-800 text-xs">
+                <AlertTriangle className="w-3.5 h-3.5 mr-1" />
+                Escalations {openEscalations > 0 && <span className="ml-1 bg-red-600 text-white text-xs px-1.5 py-0.5 rounded-full">{openEscalations}</span>}
+              </TabsTrigger>
+              <TabsTrigger value="gantt"       className="data-[state=active]:bg-gray-800 text-xs">
+                <GitBranch className="w-3.5 h-3.5 mr-1" />Gantt
+              </TabsTrigger>
+              <TabsTrigger value="changelog"   className="data-[state=active]:bg-gray-800 text-xs">
+                <Clock className="w-3.5 h-3.5 mr-1" />Changelog
+              </TabsTrigger>
+            </TabsList>
+            <TabsContent value="director">    <DirectorView project={project} /></TabsContent>
+            <TabsContent value="report">      <ExecutiveReport project={project} onUpdate={reload} /></TabsContent>
+            <TabsContent value="sla">         <SLAAlerts project={project} /></TabsContent>
+            <TabsContent value="carriers">    <CarrierScorecard project={project} /></TabsContent>
+            <TabsContent value="network">     <NetworkMonitor project={project} /></TabsContent>
+            <TabsContent value="escalations"> <EscalationTracker project={project} onUpdate={reload} readonly={readonly} /></TabsContent>
+            <TabsContent value="gantt">       <GanttView project={project} /></TabsContent>
+            <TabsContent value="changelog">   <ChangeLog project={project} /></TabsContent>
+          </Tabs>
+
         ) : (
-          /* program_manager + solutions_manager: full tabs */
+          /* Program Manager: full operational control */
           <Tabs defaultValue={tabParam ?? "sites"}>
             <TabsList className="bg-gray-900 border border-gray-800 flex-wrap h-auto gap-0.5">
               <TabsTrigger value="sites"       className="data-[state=active]:bg-gray-800 text-xs">Sites</TabsTrigger>
