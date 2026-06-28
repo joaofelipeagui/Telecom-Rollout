@@ -220,10 +220,34 @@ export default function ProjectPage({ params }: { params: Promise<{ id: string }
 
         {/* Role-specific views */}
         {effectiveRole === 'field_engineer' ? (
-          <FieldEngineerView project={project} onUpdate={reload} />
+          <Tabs defaultValue={tabParam ?? "field"}>
+            <TabsList className="bg-gray-900 border border-gray-800 mb-4 flex-wrap h-auto gap-0.5">
+              <TabsTrigger value="field"   className="data-[state=active]:bg-gray-800 text-xs">Field View</TabsTrigger>
+              <TabsTrigger value="sites"   className="data-[state=active]:bg-gray-800 text-xs">Sites</TabsTrigger>
+              <TabsTrigger value="network" className="data-[state=active]:bg-gray-800 text-xs">
+                <Activity className="w-3.5 h-3.5 mr-1" />Live Network
+              </TabsTrigger>
+            </TabsList>
+            <TabsContent value="field">   <FieldEngineerView project={project} onUpdate={reload} /></TabsContent>
+            <TabsContent value="sites">   <SitesTable project={project} onUpdate={reload} /></TabsContent>
+            <TabsContent value="network"> <NetworkMonitor project={project} /></TabsContent>
+          </Tabs>
 
         ) : effectiveRole === 'sdwan_engineer' ? (
-          <SDWANEngineerView project={project} onUpdate={reload} />
+          <Tabs defaultValue={tabParam ?? "sdwan"}>
+            <TabsList className="bg-gray-900 border border-gray-800 mb-4 flex-wrap h-auto gap-0.5">
+              <TabsTrigger value="sdwan"   className="data-[state=active]:bg-gray-800 text-xs">SD-WAN View</TabsTrigger>
+              <TabsTrigger value="sites"   className="data-[state=active]:bg-gray-800 text-xs">Sites</TabsTrigger>
+              <TabsTrigger value="dia"     className="data-[state=active]:bg-gray-800 text-xs">DIA / Connectivity</TabsTrigger>
+              <TabsTrigger value="network" className="data-[state=active]:bg-gray-800 text-xs">
+                <Activity className="w-3.5 h-3.5 mr-1" />Live Network
+              </TabsTrigger>
+            </TabsList>
+            <TabsContent value="sdwan">   <SDWANEngineerView project={project} onUpdate={reload} /></TabsContent>
+            <TabsContent value="sites">   <SitesTable project={project} onUpdate={reload} /></TabsContent>
+            <TabsContent value="dia">     <DIAMatrix project={project} onUpdate={reload} /></TabsContent>
+            <TabsContent value="network"> <NetworkMonitor project={project} /></TabsContent>
+          </Tabs>
 
         ) : effectiveRole === 'telco_engineer' ? (
           /* Telco Engineer: circuit specialist — DIA workspace + SLA deadlines + carrier perf + live health */
@@ -321,6 +345,7 @@ export default function ProjectPage({ params }: { params: Promise<{ id: string }
               <TabsTrigger value="gantt"       className="data-[state=active]:bg-gray-800 text-xs">
                 <GitBranch className="w-3.5 h-3.5 mr-1" />Gantt
               </TabsTrigger>
+              <TabsTrigger value="sites"       className="data-[state=active]:bg-gray-800 text-xs">Sites</TabsTrigger>
               <TabsTrigger value="changelog"   className="data-[state=active]:bg-gray-800 text-xs">
                 <Clock className="w-3.5 h-3.5 mr-1" />Changelog
               </TabsTrigger>
@@ -332,6 +357,7 @@ export default function ProjectPage({ params }: { params: Promise<{ id: string }
             <TabsContent value="network">     <NetworkMonitor project={project} /></TabsContent>
             <TabsContent value="escalations"> <EscalationTracker project={project} onUpdate={reload} readonly={readonly} /></TabsContent>
             <TabsContent value="gantt">       <GanttView project={project} /></TabsContent>
+            <TabsContent value="sites">       <SitesTable project={project} onUpdate={reload} /></TabsContent>
             <TabsContent value="changelog">   <ChangeLog project={project} /></TabsContent>
           </Tabs>
 
