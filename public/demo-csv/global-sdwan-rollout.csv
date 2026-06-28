@@ -1,0 +1,29 @@
+name,address,city,state,country,wave,type
+New York HQ,"1 World Trade Center, Floor 42",New York,NY,United States,1,SDWAN
+Chicago Regional,"233 S Wacker Dr, Suite 4700",Chicago,IL,United States,1,SDWAN
+Los Angeles Office,"2049 Century Park East, Suite 2000",Los Angeles,CA,United States,1,SDWAN
+Houston Operations,"1000 Louisiana St, Suite 1500",Houston,TX,United States,1,SDWAN
+Toronto Branch,"100 King St W, Suite 5600",Toronto,ON,Canada,1,SDWAN
+Mexico City Hub,"Paseo de la Reforma 350, Piso 12",Mexico City,CDMX,Mexico,1,SDWAN
+São Paulo HQ,"Av. Paulista 1374, 10 Andar",São Paulo,SP,Brazil,2,SDWAN
+Rio de Janeiro,"Av. Rio Branco 181, Sala 501",Rio de Janeiro,RJ,Brazil,2,SDWAN
+Bogotá Office,"Cra 7 No 71-21, Torre B Piso 8",Bogotá,Cundinamarca,Colombia,2,SDWAN
+Santiago Branch,"Av. Providencia 1208, Piso 5",Santiago,RM,Chile,2,SDWAN
+Buenos Aires,"Florida 343, Piso 6",Buenos Aires,CABA,Argentina,2,SDWAN
+Lima Office,"Av. Larco 1301, Miraflores",Lima,Lima,Peru,2,SDWAN
+London HQ,"30 St Mary Axe, The Gherkin",London,England,United Kingdom,1,SDWAN
+Frankfurt Branch,"Neue Mainzer Str. 52, 7. OG",Frankfurt,Hessen,Germany,1,SDWAN
+Paris Office,"Tour First, 1 Pl. des Saisons",Paris,Île-de-France,France,1,SDWAN
+Amsterdam Hub,"Zuidas, Gustav Mahlerlaan 10",Amsterdam,Noord-Holland,Netherlands,1,SDWAN
+Madrid Branch,"Paseo de la Castellana 259, Torre de Cristal",Madrid,Madrid,Spain,2,SDWAN
+Milan Office,"Via Turati 25",Milan,Lombardy,Italy,2,SDWAN
+Stockholm Branch,"Kungsgatan 34, Plan 6",Stockholm,Stockholm,Sweden,2,SDWAN
+Warsaw Office,"Al. Jana Pawła II 25",Warsaw,Masovian,Poland,2,SDWAN
+Dubai HQ,"One Central, Trade Centre 1",Dubai,Dubai,UAE,2,HYBRID
+Riyadh Office,"King Fahd Rd, Al Olaya",Riyadh,Riyadh,Saudi Arabia,3,HYBRID
+Singapore HQ,"1 Raffles Quay, North Tower",Singapore,,Singapore,1,SDWAN
+Tokyo Branch,"2-1-1 Nihonbashi, Chuo-ku",Tokyo,Tokyo,Japan,2,SDWAN
+Sydney Office,"1 Macquarie Place, Level 14",Sydney,NSW,Australia,2,SDWAN
+Hong Kong Hub,"Two International Finance Centre, 8 Finance St",Hong Kong,,Hong Kong,3,SDWAN
+Shanghai Branch,"1000 Lujiazui Ring Road",Shanghai,Shanghai,China,3,SDWAN
+Mumbai Office,"Bandra Kurla Complex, Unit 4B",Mumbai,Maharashtra,India,3,SDWAN

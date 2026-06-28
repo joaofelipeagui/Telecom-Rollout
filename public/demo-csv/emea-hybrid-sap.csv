@@ -1,0 +1,31 @@
+name,address,city,state,country,wave,type
+London Canary Wharf,"One Canada Square, Level 28",London,England,United Kingdom,1,SAP
+London City,"20 Fenchurch St, Level 22",London,England,United Kingdom,1,HYBRID
+Manchester,"1 Spinningfields, Hardman Blvd",Manchester,England,United Kingdom,1,SAP
+Edinburgh,"Quartermile 1, 15 Lauriston Place",Edinburgh,Scotland,United Kingdom,2,HYBRID
+Frankfurt Main,"Taunusanlage 8, 8. OG",Frankfurt,Hessen,Germany,1,SAP
+Munich,"Arnulfstraße 126, 5. Stock",Munich,Bavaria,Germany,1,SAP
+Berlin,"Potsdamer Platz 1, Tower 1",Berlin,Berlin,Germany,2,HYBRID
+Hamburg,"Mönckebergstr. 7, Etage 5",Hamburg,Hamburg,Germany,2,SAP
+Paris La Défense,"Tour First, 1 Pl. des Saisons, 18ème",Paris,Île-de-France,France,1,SAP
+Paris Opéra,"9 Bd des Italiens, 4ème Étage",Paris,Île-de-France,France,2,HYBRID
+Lyon,"43 Rue de Marseille, 3ème Étage",Lyon,Auvergne-Rhône-Alpes,France,2,SAP
+Amsterdam,"Zuidplein 126, WTC H Tower",Amsterdam,Noord-Holland,Netherlands,1,SAP
+Rotterdam,"Weena 505, 14th Floor",Rotterdam,Zuid-Holland,Netherlands,2,HYBRID
+Madrid Centro,"Torre Castellana 259, Planta 12",Madrid,Madrid,Spain,1,SAP
+Barcelona,"Av. Diagonal 601-605, Planta 8",Barcelona,Catalonia,Spain,2,HYBRID
+Milan Duomo,"Via Monte Napoleone 8, Piano 5",Milan,Lombardy,Italy,1,SAP
+Rome,"Via Vittorio Veneto 89, Piano 4",Rome,Lazio,Italy,2,HYBRID
+Stockholm,"Klarabergsviadukten 90, Plan 6",Stockholm,Stockholm,Sweden,1,SAP
+Copenhagen,"Rådhuspladsen 16, 4. sal",Copenhagen,Capital,Denmark,2,HYBRID
+Oslo,"Filipstad Brygge 1, 7. etasje",Oslo,Oslo,Norway,2,SAP
+Warsaw,"Rondo ONZ 1, Piętro 15",Warsaw,Masovian,Poland,2,SAP
+Prague,"Budějovická 1518/13, 4. patro",Prague,Prague,Czech Republic,3,HYBRID
+Budapest,"Váci út 1-3, Graphisoft Park",Budapest,Central Hungary,Hungary,3,HYBRID
+Dubai DIFC,"Gate District, Building 4, Level 6",Dubai,Dubai,UAE,1,SAP
+Abu Dhabi,"Al Sila Tower, Sowwah Square",Abu Dhabi,Abu Dhabi,UAE,2,HYBRID
+Riyadh King Fahd,"Al Faisaliah Tower, Level 18",Riyadh,Riyadh,Saudi Arabia,2,SAP
+Johannesburg,"Sandton City Office Tower, 8th Floor",Johannesburg,Gauteng,South Africa,3,HYBRID
+Nairobi,"Upper Hill, One Africa Place",Nairobi,Nairobi,Kenya,3,LTE
+Lagos,"Victoria Island, Adeola Odeku St",Lagos,Lagos,Nigeria,3,LTE
+Cairo,"Nile City Towers, South Tower",Cairo,Cairo,Egypt,3,LTE

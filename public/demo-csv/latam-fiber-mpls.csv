@@ -1,0 +1,28 @@
+name,address,city,state,country,wave,type
+SP Matriz,"Av. das Nações Unidas 12901, Torre Norte",São Paulo,SP,Brazil,1,FIBER
+SP Alphaville,"Alameda Xingu 350, Bloco A",Barueri,SP,Brazil,1,FIBER
+SP Campinas,"Av. José de Sousa Campos 900",Campinas,SP,Brazil,1,MPLS
+SP Ribeirão Preto,"Av. Presidente Vargas 2121",Ribeirão Preto,SP,Brazil,1,MPLS
+RJ Centro,"Av. Presidente Wilson 231, 22 Andar",Rio de Janeiro,RJ,Brazil,1,FIBER
+RJ Barra da Tijuca,"Av. das Américas 4200, Bloco 4",Rio de Janeiro,RJ,Brazil,2,MPLS
+MG Belo Horizonte,"Av. do Contorno 6777, 10 Andar",Belo Horizonte,MG,Brazil,2,FIBER
+RS Porto Alegre,"Av. Borges de Medeiros 2233",Porto Alegre,RS,Brazil,2,MPLS
+PR Curitiba,"Rua Marechal Deodoro 630, 4 Andar",Curitiba,PR,Brazil,2,FIBER
+BA Salvador,"Av. Tancredo Neves 1632, Ed. Empresarial",Salvador,BA,Brazil,2,MPLS
+PE Recife,"Av. Agamenon Magalhães 4775",Recife,PE,Brazil,3,MPLS
+CE Fortaleza,"Av. Santos Dumont 2828, Torre A",Fortaleza,CE,Brazil,3,LTE
+AM Manaus,"Av. Eduardo Ribeiro 520, Centro",Manaus,AM,Brazil,3,LTE
+PA Belém,"Av. Presidente Vargas 882",Belém,PA,Brazil,3,LTE
+Bogotá Centro,"Cra 7 No 32-33, Piso 12",Bogotá,Cundinamarca,Colombia,1,FIBER
+Bogotá Norte,"Cra 15 No 88-64, Torre 1",Bogotá,Cundinamarca,Colombia,2,MPLS
+Medellín,"Calle 10 No 43E-31, El Poblado",Medellín,Antioquia,Colombia,2,MPLS
+Cali Branch,"Cra 4 No 7-22, Piso 8",Cali,Valle del Cauca,Colombia,3,LTE
+Santiago Centro,"Av. Libertador Bernardo O'Higgins 1449",Santiago,RM,Chile,1,FIBER
+Santiago Las Condes,"Av. El Bosque Norte 500, Piso 15",Santiago,RM,Chile,2,MPLS
+Valparaíso,"Blanco 895, Oficina 42",Valparaíso,Valparaíso,Chile,3,LTE
+Lima Miraflores,"Av. José Larco 1301, Of. 504",Lima,Lima,Peru,2,FIBER
+Lima San Isidro,"Calle Las Begonias 441, Piso 6",Lima,Lima,Peru,2,MPLS
+Buenos Aires Microcentro,"Av. Corrientes 550, Piso 14",Buenos Aires,CABA,Argentina,2,FIBER
+Buenos Aires Palermo,"Thames 2000, Piso 3",Buenos Aires,CABA,Argentina,3,MPLS
+Montevideo,"Rambla República de México 6125",Montevideo,Montevideo,Uruguay,3,LTE
+Asunción,"Av. Mariscal López 4035",Asunción,Central,Paraguay,3,LTE
