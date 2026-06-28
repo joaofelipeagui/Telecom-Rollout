@@ -1,6 +1,6 @@
 'use client'
 import { useEffect, useRef, useState } from 'react'
-import { Project, getRegionForCountry } from '@/lib/types'
+import { Project, Site, getRegionForCountry } from '@/lib/types'
 import { Truck, Plane, Package, Clock, MapPin, CheckCircle, ArrowLeft, ChevronRight } from 'lucide-react'
 
 // ── Hubs & equipment ─────────────────────────────────────────────────────────
@@ -245,6 +245,19 @@ function TrackingPanel({ shipment, onBack }: { shipment: Shipment; onBack: () =>
 // ── Main component ────────────────────────────────────────────────────────────
 interface Props { project: Project }
 
+async function geocodeSites(sites: Site[]) {
+  return Promise.all(sites.map(async s => {
+    if (s.lat && s.lng) return s
+    const addr = `${s.address}, ${s.city}${s.state ? `, ${s.state}` : ''}, ${s.country}`
+    try {
+      const res = await fetch(`/api/geocode?address=${encodeURIComponent(addr)}`)
+      if (!res.ok) return s
+      const { lat, lng } = await res.json()
+      return { ...s, lat, lng }
+    } catch { return s }
+  }))
+}
+
 export function LogisticsMap({ project }: Props) {
   const mapRef    = useRef<HTMLDivElement>(null)
   const mapInst   = useRef<any>(null)
@@ -252,12 +265,23 @@ export function LogisticsMap({ project }: Props) {
   const token     = process.env.NEXT_PUBLIC_MAPBOX_TOKEN
 
   const [shipments,    setShipments]    = useState<Shipment[]>(() => buildShipments(project))
+  const [geocoding,    setGeocoding]    = useState(() => project.sites.some(s => !s.lat || !s.lng))
   const [selected,     setSelected]     = useState<Shipment | null>(null)
   const [activeFilter, setActiveFilter] = useState<string | null>(null)
   const [deliveryFeed, setDeliveryFeed] = useState<{ id:string; siteName:string; ts:string; transport:string }[]>([])
   const [toast,        setToast]        = useState<{ siteName:string; transport:string } | null>(null)
   const [flashIds,     setFlashIds]     = useState<Set<string>>(new Set())
   const [mapLoaded,    setMapLoaded]    = useState(false)
+
+  // Geocode sites missing coordinates then rebuild shipments
+  useEffect(() => {
+    if (!project.sites.some(s => !s.lat || !s.lng)) return
+    setGeocoding(true)
+    geocodeSites(project.sites).then(resolved => {
+      setShipments(buildShipments({ ...project, sites: resolved }))
+      setGeocoding(false)
+    })
+  }, [project.id])
 
   // Dismiss toast
   useEffect(() => { if (!toast) return; const t = setTimeout(() => setToast(null), 4000); return () => clearTimeout(t) }, [toast])
@@ -422,6 +446,14 @@ export function LogisticsMap({ project }: Props) {
   if (!token) return (
     <div className="flex items-center justify-center h-64 bg-gray-900 rounded-xl border border-gray-800">
       <p className="text-gray-500 text-sm">Configure MAPBOX_TOKEN to enable the logistics map</p>
+    </div>
+  )
+
+  if (geocoding) return (
+    <div className="flex flex-col items-center justify-center h-64 bg-gray-900 rounded-xl border border-gray-800 gap-3">
+      <div className="w-6 h-6 border-2 border-blue-500 border-t-transparent rounded-full animate-spin" />
+      <p className="text-sm text-gray-400">Locating sites on the map…</p>
+      <p className="text-xs text-gray-600">Geocoding {project.sites.filter(s => !s.lat || !s.lng).length} sites without coordinates</p>
     </div>
   )
 
