@@ -330,8 +330,7 @@ export function LogisticsMap({ project }: Props) {
   useEffect(() => {
     if (!token || !mapRef.current || mapInst.current) return
     import('mapbox-gl').then(({ default: mapboxgl }) => {
-      import('mapbox-gl/dist/mapbox-gl.css')
-      mapboxgl.accessToken = token
+mapboxgl.accessToken = token
       const map = new mapboxgl.Map({
         container: mapRef.current!, style:'mapbox://styles/mapbox/dark-v11',
         center:[10,20], zoom:1.5, projection:'mercator' as any,
