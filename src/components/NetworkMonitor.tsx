@@ -1,6 +1,6 @@
 'use client'
 import { useState, useEffect, useRef, useCallback } from 'react'
-import { Project, Provider, PROVIDERS } from '@/lib/types'
+import { Project, Provider, getCarrierForCountry } from '@/lib/types'
 import {
   Activity, Wifi, WifiOff, AlertTriangle, CheckCircle,
   Pause, Play, Trash2, Filter, Radio, TrendingUp, TrendingDown, Minus
@@ -94,7 +94,7 @@ function pickRand<T>(arr: T[]): T { return arr[Math.floor(Math.random() * arr.le
 function buildSiteHealths(project: Project): SiteHealth[] {
   return project.sites.slice(0, 30).map(site => {
     const providers = Object.keys(site.dias) as Provider[]
-    const provider  = providers.length > 0 ? providers[0] : (PROVIDERS[0] as Provider)
+    const provider  = providers.length > 0 ? providers[0] : getCarrierForCountry(site.country)
     const stability = Math.random()
     const state: SiteHealth['state'] = stability > 0.85 ? 'down' : stability > 0.65 ? 'degraded' : 'up'
     return {

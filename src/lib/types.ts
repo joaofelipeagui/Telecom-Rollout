@@ -94,6 +94,83 @@ export type DIAStatus = 'not_requested' | 'requested' | 'received' | 'confirmed'
 export const PROVIDERS = ['Claro', 'Vivo', 'TIM', 'Oi', 'Embratel'] as const
 export type Provider = typeof PROVIDERS[number]
 
+// Primary carrier per country for simulation and display purposes
+export const COUNTRY_CARRIERS: Record<string, [string, string]> = {
+  // Latin America
+  'Brazil':          ['Embratel', 'Vivo Empresas'],
+  'Colombia':        ['ETB', 'Claro Colombia'],
+  'Chile':           ['Entel', 'Movistar Chile'],
+  'Argentina':       ['Telecom Argentina', 'Claro Argentina'],
+  'Mexico':          ['Telmex', 'Izzi Telecom'],
+  'Peru':            ['Telefónica Peru', 'Claro Peru'],
+  'Ecuador':         ['CNT', 'Claro Ecuador'],
+  'Uruguay':         ['Antel', 'Claro Uruguay'],
+  'Paraguay':        ['Copaco', 'Personal Paraguay'],
+  'Bolivia':         ['Entel Bolivia', 'Tigo Bolivia'],
+  'Venezuela':       ['CANTV', 'Movilnet'],
+  'Panama':          ['Cable & Wireless', 'Claro Panama'],
+  'Costa Rica':      ['ICE', 'Tigo Costa Rica'],
+  'Guatemala':       ['Tigo Guatemala', 'Claro Guatemala'],
+  'Honduras':        ['Tigo Honduras', 'Claro Honduras'],
+  'El Salvador':     ['Tigo El Salvador', 'Claro El Salvador'],
+  'Nicaragua':       ['Claro Nicaragua', 'Tigo Nicaragua'],
+  'Dominican Republic': ['Claro DR', 'Altice Dominicana'],
+  // North America
+  'United States':   ['AT&T Business', 'Verizon Business'],
+  'USA':             ['AT&T Business', 'Verizon Business'],
+  'Canada':          ['Bell Canada', 'Rogers Business'],
+  // Europe
+  'France':          ['Orange Business', 'SFR Business'],
+  'Germany':         ['Deutsche Telekom', 'Vodafone Business DE'],
+  'United Kingdom':  ['BT Business', 'Virgin Media Business'],
+  'UK':              ['BT Business', 'Virgin Media Business'],
+  'Italy':           ['TIM Enterprise', 'Fastweb Business'],
+  'Spain':           ['Telefónica España', 'Vodafone ES'],
+  'Netherlands':     ['KPN Business', 'Ziggo Business'],
+  'Belgium':         ['Proximus', 'Orange Belgium'],
+  'Switzerland':     ['Swisscom Business', 'Sunrise UPC'],
+  'Austria':         ['A1 Telekom Austria', 'Magenta Telekom'],
+  'Sweden':          ['Telia Business', 'Tele2 Business'],
+  'Norway':          ['Telenor Business', 'Telia Norway'],
+  'Denmark':         ['TDC Business', 'Telenor Denmark'],
+  'Finland':         ['Elisa Business', 'Telia Finland'],
+  'Poland':          ['Orange Poland', 'T-Mobile Poland'],
+  'Portugal':        ['NOS Business', 'Nos Empresas'],
+  'Czech Republic':  ['O2 Czech Republic', 'T-Mobile CZ'],
+  'Hungary':         ['Magyar Telekom', 'Vodafone HU'],
+  'Romania':         ['Orange Romania', 'Vodafone Romania'],
+  // Asia-Pacific
+  'Japan':           ['NTT Communications', 'KDDI Business'],
+  'China':           ['China Telecom Business', 'China Unicom Business'],
+  'South Korea':     ['KT Enterprise', 'SK Broadband'],
+  'India':           ['Tata Communications', 'Airtel Business'],
+  'Singapore':       ['Singtel Business', 'StarHub Business'],
+  'Australia':       ['Telstra Enterprise', 'Optus Business'],
+  'New Zealand':     ['Spark Business', 'Vodafone NZ'],
+  'Hong Kong':       ['PCCW Business', 'HKT Enterprise'],
+  'Taiwan':          ['Chunghwa Telecom', 'FarEasTone'],
+  'Malaysia':        ['TM Business', 'Maxis Business'],
+  'Indonesia':       ['Telkom Indonesia', 'Indosat Ooredoo'],
+  'Thailand':        ['True Business', 'AIS Business'],
+  'Philippines':     ['PLDT Enterprise', 'Globe Telecom'],
+  'Vietnam':         ['VNPT', 'Viettel Business'],
+  // Middle East & Africa
+  'UAE':             ['Etisalat Business', 'du Telecom'],
+  'Saudi Arabia':    ['STC Business', 'Zain KSA'],
+  'South Africa':    ['MTN Business', 'Vodacom Business'],
+  'Nigeria':         ['MTN Nigeria', 'Airtel Nigeria'],
+  'Egypt':           ['Telecom Egypt', 'Etisalat Egypt'],
+  'Kenya':           ['Safaricom Business', 'Airtel Kenya'],
+  'Morocco':         ['Maroc Telecom', 'Orange Maroc'],
+  'Israel':          ['Bezeq International', 'Partner Communications'],
+  'Turkey':          ['Turk Telekom', 'Vodafone Turkey'],
+}
+
+export function getCarrierForCountry(country: string): string {
+  const pair = COUNTRY_CARRIERS[country]
+  return pair ? pair[0] : 'Local Carrier'
+}
+
 export interface DIA {
   provider: Provider
   status: DIAStatus
