@@ -1,6 +1,6 @@
 'use client'
 import { useState, useEffect, useRef } from 'react'
-import { Site, PROVIDERS, Provider, DIAStatus, DIA, SitePhoto } from '@/lib/types'
+import { Site, PROVIDERS, Provider, DIAStatus, DIA, SitePhoto, RefreshType, REFRESH_TYPES, REFRESH_TYPE_LABELS, REFRESH_TYPE_COLORS } from '@/lib/types'
 import { updateSite, updateSiteDIA, addChangeLog } from '@/lib/store'
 import { Button } from '@/components/ui/button'
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select'
@@ -107,6 +107,16 @@ export function SiteDetailPanel({ site, projectId, onClose, onUpdate, readonly }
     onUpdate()
   }
 
+  function changeRefreshType(v: string) {
+    const rt = v === 'none' ? undefined : v as RefreshType
+    updateSite(projectId, site.id, { refreshType: rt }, {
+      field: 'refreshType',
+      oldValue: site.refreshType,
+      newValue: v,
+    })
+    onUpdate()
+  }
+
   async function exportSingleKMZ() {
     const blob = await generateKMZ([site], site.name)
     downloadBlob(blob, `${site.name.replace(/\s+/g, '_')}.kmz`)
@@ -197,8 +207,8 @@ export function SiteDetailPanel({ site, projectId, onClose, onUpdate, readonly }
         }
       </div>
 
-      {/* Status */}
-      <div className="p-4 border-b border-gray-800">
+      {/* Status + Refresh Type */}
+      <div className="p-4 border-b border-gray-800 space-y-3">
         <div className="flex items-center justify-between mb-2">
           <span className="text-xs font-medium text-gray-300">Site Status</span>
           <Button size="sm" variant="ghost" onClick={exportSingleKMZ} className="h-6 text-xs text-gray-400 hover:text-white px-2">
@@ -215,6 +225,28 @@ export function SiteDetailPanel({ site, projectId, onClose, onUpdate, readonly }
             ))}
           </SelectContent>
         </Select>
+
+        <div>
+          <div className="flex items-center justify-between mb-1.5">
+            <span className="text-xs font-medium text-gray-300">Refresh Type</span>
+            {site.refreshType && (
+              <span className={`text-xs px-2 py-0.5 rounded border font-semibold ${REFRESH_TYPE_COLORS[site.refreshType]}`}>
+                {site.refreshType}
+              </span>
+            )}
+          </div>
+          <Select value={site.refreshType || 'none'} onValueChange={v => v && changeRefreshType(v)} disabled={readonly}>
+            <SelectTrigger className="bg-gray-800 border-gray-700 text-white text-sm">
+              <SelectValue placeholder="No type assigned" />
+            </SelectTrigger>
+            <SelectContent className="bg-gray-900 border-gray-700">
+              <SelectItem value="none" className="text-gray-400">No type assigned</SelectItem>
+              {REFRESH_TYPES.map(t => (
+                <SelectItem key={t} value={t} className="text-white">{t} — {REFRESH_TYPE_LABELS[t]}</SelectItem>
+              ))}
+            </SelectContent>
+          </Select>
+        </div>
       </div>
 
       {/* Tabs */}

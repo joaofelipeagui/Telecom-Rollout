@@ -4,7 +4,7 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/u
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
-import { Project, Site, PROVIDERS, Wave } from '@/lib/types'
+import { Project, Site, PROVIDERS, Wave, RefreshType, REFRESH_TYPES } from '@/lib/types'
 import { DEMO_SITES } from '@/lib/demoSites'
 import { Upload, Loader2, Globe } from 'lucide-react'
 
@@ -24,12 +24,15 @@ function parseSitesCSV(text: string): Site[] {
   const stateIdx   = header.findIndex(h => h.includes('state') || h.includes('estado') || h === 'uf')
   const countryIdx = header.findIndex(h => h.includes('country') || h.includes('pais') || h.includes('país'))
   const waveIdx    = header.findIndex(h => h.includes('wave'))
+  const typeIdx    = header.findIndex(h => h.includes('type') || h.includes('refresh'))
 
   return lines.slice(1).map((line, i) => {
     // Handle quoted fields (e.g. "123 Main St, Suite 4")
     const cols = line.match(/(".*?"|[^,]+)(?=,|$)/g)?.map(c => c.trim().replace(/^"|"$/g, '')) ?? line.split(',').map(c => c.trim())
     const rawWave = waveIdx >= 0 ? parseInt(cols[waveIdx] ?? '') : NaN
     const wave = (rawWave === 1 || rawWave === 2 || rawWave === 3) ? rawWave as Wave : undefined
+    const rawType = typeIdx >= 0 ? (cols[typeIdx] ?? '').toUpperCase() : ''
+    const refreshType = (REFRESH_TYPES as readonly string[]).includes(rawType) ? rawType as RefreshType : undefined
     return {
       id: `site_${Date.now()}_${i}`,
       name: cols[nameIdx] || `Site ${i + 1}`,
@@ -40,6 +43,7 @@ function parseSitesCSV(text: string): Site[] {
       status: 'pending',
       dias: {},
       wave,
+      refreshType,
       createdAt: new Date().toISOString(),
     }
   })
@@ -134,7 +138,7 @@ export function NewProjectDialog({ open, onClose, onCreate }: Props) {
               <p className="text-sm text-gray-400">
                 {sites.length > 0
                   ? `${sites.length} sites loaded`
-                  : 'Upload CSV  ·  columns: name, address, city, state, country, wave'}
+                  : 'Upload CSV  ·  columns: name, address, city, state, country, wave, type'}
               </p>
               {sites.length > 0 && (
                 <p className="text-xs text-blue-400 mt-1">{sites.slice(0, 3).map(s => s.name).join(', ')}{sites.length > 3 ? ` +${sites.length - 3} more` : ''}</p>

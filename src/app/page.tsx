@@ -1,14 +1,14 @@
 'use client'
 import { useEffect, useState } from 'react'
 import { useRouter } from 'next/navigation'
-import { getProjects, saveProject } from '@/lib/store'
+import { getProjects, saveProject, deleteProject } from '@/lib/store'
 import { Project, UserProfile, ROLE_LABELS, ROLE_COLORS, Site, REGIONS, REGION_LABELS, REGION_COLORS, REGION_BAR_COLORS, getRegionForCountry } from '@/lib/types'
 import { getCurrentUser, clearCurrentUser } from '@/lib/user'
 import { Button } from '@/components/ui/button'
 import { Badge } from '@/components/ui/badge'
 import {
   Plus, Globe, CheckCircle, AlertTriangle, Clock, Plane,
-  MapPin, Network, BarChart3, GitBranch, Bot, Package, Wifi, ArrowRight, Bell, Award, Activity
+  MapPin, Network, BarChart3, GitBranch, Bot, Package, Wifi, ArrowRight, Bell, Award, Activity, Trash2
 } from 'lucide-react'
 import Link from 'next/link'
 import { NewProjectDialog } from '@/components/NewProjectDialog'
@@ -73,6 +73,7 @@ export default function Home() {
   const [user, setUser] = useState<UserProfile | null>(null)
   const [loaded, setLoaded] = useState(false)
   const [selectedProject, setSelectedProject] = useState<Project | null>(null)
+  const [confirmDelete,   setConfirmDelete]   = useState<string | null>(null)
 
   useEffect(() => {
     setUser(getCurrentUser())
@@ -91,6 +92,14 @@ export default function Home() {
     setProjects(p)
     setSelectedProject(project)
     setOpen(false)
+  }
+
+  function handleDeleteProject(id: string) {
+    deleteProject(id)
+    const updated = getProjects()
+    setProjects(updated)
+    if (selectedProject?.id === id) setSelectedProject(updated[0] ?? null)
+    setConfirmDelete(null)
   }
 
   function handleSiteClick(site: Site) {
@@ -232,25 +241,60 @@ export default function Home() {
                 {projects.map(project => {
                   const s = project.sites
                   const pct = s.length ? Math.round((s.filter(x => x.status === 'completed').length / s.length) * 100) : 0
-                  const isSelected = selectedProject?.id === project.id
+                  const isSelected  = selectedProject?.id === project.id
+                  const isConfirming = confirmDelete === project.id
                   return (
-                    <button
+                    <div
                       key={project.id}
-                      onClick={() => setSelectedProject(project)}
-                      className={`w-full text-left px-4 py-3 border-b border-gray-800/50 transition-all ${
+                      className={`group relative border-b border-gray-800/50 transition-all ${
                         isSelected ? 'bg-blue-950/30 border-l-2 border-l-blue-500' : 'hover:bg-gray-800/30'
                       }`}
                     >
-                      <div className="text-sm font-medium text-white truncate">{project.name}</div>
-                      <div className="text-xs text-gray-400 mt-0.5">{project.customer}</div>
-                      <div className="flex items-center gap-2 mt-2">
-                        <div className="flex-1 bg-gray-700 rounded-full h-1">
-                          <div className="bg-blue-500 h-1 rounded-full" style={{ width: `${pct}%` }} />
+                      <button
+                        onClick={() => { setSelectedProject(project); setConfirmDelete(null) }}
+                        className="w-full text-left px-4 py-3 pr-8"
+                      >
+                        <div className="text-sm font-medium text-white truncate">{project.name}</div>
+                        <div className="text-xs text-gray-400 mt-0.5">{project.customer}</div>
+                        <div className="flex items-center gap-2 mt-2">
+                          <div className="flex-1 bg-gray-700 rounded-full h-1">
+                            <div className="bg-blue-500 h-1 rounded-full" style={{ width: `${pct}%` }} />
+                          </div>
+                          <span className="text-xs text-gray-400">{pct}%</span>
                         </div>
-                        <span className="text-xs text-gray-400">{pct}%</span>
-                      </div>
-                      <div className="text-xs text-gray-500 mt-1">{s.length} sites</div>
-                    </button>
+                        <div className="text-xs text-gray-500 mt-1">{s.length} sites</div>
+                      </button>
+
+                      {/* Delete button — visible on hover */}
+                      {!isConfirming && (
+                        <button
+                          onClick={e => { e.stopPropagation(); setConfirmDelete(project.id) }}
+                          className="absolute top-3 right-2 opacity-0 group-hover:opacity-100 transition-opacity p-1 rounded text-gray-500 hover:text-red-400 hover:bg-red-950/40"
+                          title="Delete project"
+                        >
+                          <Trash2 className="w-3.5 h-3.5" />
+                        </button>
+                      )}
+
+                      {/* Confirm strip */}
+                      {isConfirming && (
+                        <div className="flex items-center gap-2 px-4 pb-3">
+                          <span className="text-xs text-red-400 flex-1">Delete project?</span>
+                          <button
+                            onClick={() => handleDeleteProject(project.id)}
+                            className="text-xs px-2 py-0.5 rounded bg-red-700 hover:bg-red-600 text-white font-semibold"
+                          >
+                            Delete
+                          </button>
+                          <button
+                            onClick={() => setConfirmDelete(null)}
+                            className="text-xs px-2 py-0.5 rounded bg-gray-700 hover:bg-gray-600 text-gray-300"
+                          >
+                            Cancel
+                          </button>
+                        </div>
+                      )}
+                    </div>
                   )
                 })}
               </div>

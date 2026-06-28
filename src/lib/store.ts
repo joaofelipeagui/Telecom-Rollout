@@ -71,6 +71,10 @@ export function getProject(id: string): Project | null {
   return getProjects().find(p => p.id === id) ?? null
 }
 
+export function deleteProject(id: string) {
+  saveProjects(getProjects().filter(p => p.id !== id))
+}
+
 export function saveProject(project: Project) {
   const projects = getProjects()
   const idx = projects.findIndex(p => p.id === project.id)

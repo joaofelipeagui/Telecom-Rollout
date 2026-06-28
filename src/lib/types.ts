@@ -183,6 +183,39 @@ export interface DIA {
   diversityConfirmed?: boolean
 }
 
+// ── Refresh / Project Type ────────────────────────────────────────────────────
+export const REFRESH_TYPES = [
+  'SDWAN', 'SAP', 'WIFI', 'FIBER', 'MPLS', 'LTE', 'VOIP', 'COLOC', 'HYBRID', 'DIA_ONLY',
+] as const
+export type RefreshType = typeof REFRESH_TYPES[number]
+
+export const REFRESH_TYPE_LABELS: Record<RefreshType, string> = {
+  SDWAN:    'SD-WAN Deployment',
+  SAP:      'SAP Connectivity',
+  WIFI:     'Wi-Fi Refresh',
+  FIBER:    'Fiber Install',
+  MPLS:     'MPLS Upgrade',
+  LTE:      '4G/LTE Backup',
+  VOIP:     'VoIP Migration',
+  COLOC:    'Co-location / DC',
+  HYBRID:   'Hybrid WAN',
+  DIA_ONLY: 'DIA Only',
+}
+
+export const REFRESH_TYPE_COLORS: Record<RefreshType, string> = {
+  SDWAN:    'text-purple-400 bg-purple-950/60 border-purple-700/50',
+  SAP:      'text-blue-400 bg-blue-950/60 border-blue-700/50',
+  WIFI:     'text-cyan-400 bg-cyan-950/60 border-cyan-700/50',
+  FIBER:    'text-green-400 bg-green-950/60 border-green-700/50',
+  MPLS:     'text-orange-400 bg-orange-950/60 border-orange-700/50',
+  LTE:      'text-yellow-400 bg-yellow-950/60 border-yellow-700/50',
+  VOIP:     'text-teal-400 bg-teal-950/60 border-teal-700/50',
+  COLOC:    'text-gray-400 bg-gray-800/60 border-gray-600/50',
+  HYBRID:   'text-pink-400 bg-pink-950/60 border-pink-700/50',
+  DIA_ONLY: 'text-emerald-400 bg-emerald-950/60 border-emerald-700/50',
+}
+
+// ── Region ────────────────────────────────────────────────────────────────────
 export type Region = 'NAM' | 'LATAM' | 'EMEA' | 'APAC'
 
 export const REGIONS: Region[] = ['NAM', 'LATAM', 'EMEA', 'APAC']
@@ -336,6 +369,7 @@ export interface Site {
   kmzGenerated?: boolean
   aiDescription?: string
   wave?: Wave
+  refreshType?: RefreshType
   checklist?: ChecklistItem[]
   photos?: SitePhoto[]
   createdAt: string

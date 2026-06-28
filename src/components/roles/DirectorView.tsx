@@ -1,5 +1,5 @@
 'use client'
-import { Project, REGIONS, REGION_LABELS, REGION_COLORS, REGION_BAR_COLORS, getRegionForCountry } from '@/lib/types'
+import { Project, REGIONS, REGION_LABELS, REGION_COLORS, REGION_BAR_COLORS, getRegionForCountry, REFRESH_TYPES, REFRESH_TYPE_LABELS, REFRESH_TYPE_COLORS } from '@/lib/types'
 import { getSiteStats } from '@/lib/store'
 import { Button } from '@/components/ui/button'
 import { generateKMZ, downloadBlob } from '@/lib/kmz'
@@ -26,6 +26,13 @@ export function DirectorView({ project }: Props) {
     const countries = Array.from(new Set(sites.map(s => s.country))).length
     return { region, total: sites.length, completed, inProgress, blocked, pending, pct, countries }
   }).filter(z => z.total > 0)
+
+  const typeStats = REFRESH_TYPES.map(t => {
+    const sites = project.sites.filter(s => s.refreshType === t)
+    const completed = sites.filter(s => s.status === 'completed').length
+    const blocked   = sites.filter(s => s.status === 'blocked').length
+    return { t, total: sites.length, completed, blocked }
+  }).filter(x => x.total > 0).sort((a, b) => b.total - a.total)
 
   async function handleKMZ() {
     const blob = await generateKMZ(project.sites, project.name)
@@ -90,6 +97,30 @@ export function DirectorView({ project }: Props) {
           )}
         </div>
       </div>
+
+      {/* Refresh type breakdown */}
+      {typeStats.length > 0 && (
+        <div className="bg-gray-900 border border-gray-800 rounded-xl overflow-hidden">
+          <div className="px-5 py-3.5 bg-gray-900/80 border-b border-gray-800">
+            <h3 className="text-sm font-semibold text-white">Rollout by Refresh Type</h3>
+          </div>
+          <div className="px-5 py-4 flex flex-wrap gap-3">
+            {typeStats.map(({ t, total, completed, blocked }) => (
+              <div key={t} className={`flex flex-col gap-1 px-3 py-2 rounded-lg border ${REFRESH_TYPE_COLORS[t]}`}>
+                <div className="flex items-center gap-2">
+                  <span className="text-xs font-bold">{t}</span>
+                  <span className="text-xs opacity-70 font-normal">{total} site{total !== 1 ? 's' : ''}</span>
+                </div>
+                <div className="text-xs opacity-60">{REFRESH_TYPE_LABELS[t]}</div>
+                <div className="flex gap-2 text-xs mt-0.5">
+                  {completed > 0 && <span className="text-green-400">{completed} done</span>}
+                  {blocked   > 0 && <span className="text-red-400">⚠ {blocked}</span>}
+                </div>
+              </div>
+            ))}
+          </div>
+        </div>
+      )}
 
       {/* Site status breakdown */}
       <div className="bg-gray-900 border border-gray-800 rounded-xl p-5">

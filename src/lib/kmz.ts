@@ -1,12 +1,12 @@
 import JSZip from 'jszip'
-import { Site, PROVIDERS } from './types'
+import { Site, REFRESH_TYPE_LABELS } from './types'
 
 function statusColor(site: Site): string {
   switch (site.status) {
-    case 'completed': return 'ff00aa00'
+    case 'completed':   return 'ff00aa00'
     case 'in_progress': return 'ff0055ff'
-    case 'blocked': return 'ff0000ff'
-    default: return 'ffaaaaaa'
+    case 'blocked':     return 'ff0000ff'
+    default:            return 'ffaaaaaa'
   }
 }
 
@@ -14,23 +14,27 @@ function buildKML(sites: Site[]): string {
   const placemarks = sites
     .filter(s => s.lat && s.lng)
     .map(site => {
-      const diaInfo = PROVIDERS.map(p => {
-        const d = site.dias[p]
-        if (!d) return `${p}: Not requested`
-        return `${p}: ${d.status}${d.circuitNumber ? ` (${d.circuitNumber})` : ''}`
-      }).join('&#10;')
+      // Use whatever providers are actually assigned to this site
+      const diaProviders = Object.keys(site.dias)
+      const diaHtml = diaProviders.length > 0
+        ? diaProviders.map(p => {
+            const d = site.dias[p as keyof typeof site.dias]
+            return `${p}: ${d ? d.status + (d.circuitNumber ? ` — ${d.circuitNumber}` : '') : 'Not requested'}`
+          }).join('<br/>')
+        : 'No circuits assigned'
+
+      const refreshHtml = site.refreshType
+        ? `<br/><b>Refresh Type:</b> ${site.refreshType} — ${REFRESH_TYPE_LABELS[site.refreshType]}`
+        : ''
 
       return `
     <Placemark>
       <name>${site.name}</name>
       <description><![CDATA[
-        <b>Address:</b> ${site.address}, ${site.city} - ${site.state}<br/>
-        <b>Status:</b> ${site.status}<br/>
-        <br/><b>DIA Circuits:</b><br/>
-        ${PROVIDERS.map(p => {
-          const d = site.dias[p]
-          return `${p}: ${d ? d.status + (d.circuitNumber ? ` — ${d.circuitNumber}` : '') : 'Not requested'}`
-        }).join('<br/>')}
+        <b>Address:</b> ${site.address}, ${site.city}${site.state ? ` - ${site.state}` : ''}, ${site.country}<br/>
+        <b>Status:</b> ${site.status.replace('_', ' ')}${site.wave ? `<br/><b>Wave:</b> ${site.wave}` : ''}${refreshHtml}
+        <br/><br/><b>DIA Circuits:</b><br/>
+        ${diaHtml}
         ${site.notes ? `<br/><br/><b>Notes:</b> ${site.notes}` : ''}
         ${site.aiDescription ? `<br/><br/><b>AI Site Analysis:</b><br/>${site.aiDescription}` : ''}
       ]]></description>
@@ -57,12 +61,35 @@ function buildKML(sites: Site[]): string {
 </kml>`
 }
 
+async function geocodeMissing(sites: Site[]): Promise<Site[]> {
+  return Promise.all(
+    sites.map(async site => {
+      if (site.lat && site.lng) return site
+      const address = `${site.address}, ${site.city}${site.state ? ` - ${site.state}` : ''}, ${site.country}`
+      try {
+        const res = await fetch(`/api/geocode?address=${encodeURIComponent(address)}`)
+        if (!res.ok) return site
+        const { lat, lng } = await res.json()
+        return { ...site, lat, lng }
+      } catch {
+        return site
+      }
+    })
+  )
+}
+
 export async function generateKMZ(sites: Site[], filename = 'rollout_sites'): Promise<Blob> {
+  // Geocode any sites that are missing coordinates before building the KML
+  const resolved = await geocodeMissing(sites)
+
+  const missing = resolved.filter(s => !s.lat || !s.lng).length
+  if (missing > 0) {
+    console.warn(`KMZ: ${missing} site(s) could not be geocoded and will be excluded.`)
+  }
+
   const zip = new JSZip()
-  const kml = buildKML(sites)
-  zip.file('doc.kml', kml)
-  const blob = await zip.generateAsync({ type: 'blob', compression: 'DEFLATE' })
-  return blob
+  zip.file('doc.kml', buildKML(resolved))
+  return zip.generateAsync({ type: 'blob', compression: 'DEFLATE' })
 }
 
 export function downloadBlob(blob: Blob, filename: string) {

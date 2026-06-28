@@ -1,6 +1,6 @@
 'use client'
 import { useState } from 'react'
-import { Project, Site, SiteStatus, Wave, Region, REGIONS, REGION_LABELS, REGION_COLORS, getRegionForCountry } from '@/lib/types'
+import { Project, Site, SiteStatus, Wave, Region, REGIONS, REGION_LABELS, REGION_COLORS, getRegionForCountry, RefreshType, REFRESH_TYPES, REFRESH_TYPE_LABELS, REFRESH_TYPE_COLORS } from '@/lib/types'
 import { updateSite } from '@/lib/store'
 import { Badge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
@@ -36,6 +36,7 @@ export function SitesTable({ project, onUpdate, readonly }: Props) {
   const [filterWave,    setFilterWave]    = useState('all')
   const [filterCountry, setFilterCountry] = useState('all')
   const [filterRegion,  setFilterRegion]  = useState('all')
+  const [filterType,    setFilterType]    = useState('all')
   const [selectedSite,  setSelectedSite]  = useState<Site | null>(null)
   const [showFilters,   setShowFilters]   = useState(false)
 
@@ -43,7 +44,7 @@ export function SitesTable({ project, onUpdate, readonly }: Props) {
   const countries = Array.from(new Set(project.sites.map(s => s.country).filter(Boolean))).sort()
   const waves: Wave[] = [1, 2, 3]
 
-  const activeFilters = [filterStatus, filterWave, filterCountry, filterRegion].filter(f => f !== 'all').length
+  const activeFilters = [filterStatus, filterWave, filterCountry, filterRegion, filterType].filter(f => f !== 'all').length
 
   const filtered = project.sites.filter(site => {
     const q = search.toLowerCase()
@@ -56,7 +57,8 @@ export function SitesTable({ project, onUpdate, readonly }: Props) {
     const matchWave    = filterWave    === 'all' || String(site.wave) === filterWave
     const matchCountry = filterCountry === 'all' || site.country === filterCountry
     const matchRegion  = filterRegion  === 'all' || getRegionForCountry(site.country) === filterRegion
-    return matchSearch && matchStatus && matchWave && matchCountry && matchRegion
+    const matchType   = filterType    === 'all' || site.refreshType === filterType
+    return matchSearch && matchStatus && matchWave && matchCountry && matchRegion && matchType
   })
 
   function diaCount(site: Site) {
@@ -83,6 +85,7 @@ export function SitesTable({ project, onUpdate, readonly }: Props) {
     setFilterWave('all')
     setFilterCountry('all')
     setFilterRegion('all')
+    setFilterType('all')
   }
 
   return (
@@ -158,6 +161,18 @@ export function SitesTable({ project, onUpdate, readonly }: Props) {
                 <SelectItem value="all" className="text-white text-xs">All zones</SelectItem>
                 {REGIONS.map(r => (
                   <SelectItem key={r} value={r} className="text-white text-xs">{r} — {REGION_LABELS[r].split(',')[0]}</SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
+
+            <Select value={filterType} onValueChange={v => v && setFilterType(v)}>
+              <SelectTrigger className="w-40 bg-gray-900 border-gray-700 text-white text-xs h-8">
+                <SelectValue placeholder="Type" />
+              </SelectTrigger>
+              <SelectContent className="bg-gray-900 border-gray-700">
+                <SelectItem value="all" className="text-white text-xs">All types</SelectItem>
+                {REFRESH_TYPES.map(t => (
+                  <SelectItem key={t} value={t} className="text-white text-xs">{t}</SelectItem>
                 ))}
               </SelectContent>
             </Select>
@@ -257,6 +272,11 @@ export function SitesTable({ project, onUpdate, readonly }: Props) {
                           </span>
                         )
                       })()}
+                      {site.refreshType && (
+                        <span className={`text-xs px-1.5 py-0.5 rounded border flex-shrink-0 font-medium ${REFRESH_TYPE_COLORS[site.refreshType]}`}>
+                          {site.refreshType}
+                        </span>
+                      )}
                     </div>
                     <div className="text-xs text-gray-400 truncate mt-0.5">
                       {[site.city, site.country].filter(Boolean).join(', ')}
