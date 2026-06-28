@@ -326,7 +326,7 @@ export function LogisticsMap({ project }: Props) {
     if (latest && latest.progress !== selected.progress) setSelected(latest)
   }, [shipments])
 
-  // Init map
+  // Init map — depends on geocoding so it runs after the map div is guaranteed in the DOM
   useEffect(() => {
     if (!token || !mapRef.current || mapInst.current) return
     import('mapbox-gl').then(({ default: mapboxgl }) => {
@@ -339,7 +339,7 @@ mapboxgl.accessToken = token
       map.on('load', () => { mapInst.current = map; setMapLoaded(true) })
     })
     return () => { mapInst.current?.remove(); mapInst.current = null }
-  }, [token])
+  }, [token, geocoding])
 
   // Fly to selected shipment
   useEffect(() => {
@@ -448,14 +448,6 @@ mapboxgl.accessToken = token
     </div>
   )
 
-  if (geocoding) return (
-    <div className="flex flex-col items-center justify-center h-64 bg-gray-900 rounded-xl border border-gray-800 gap-3">
-      <div className="w-6 h-6 border-2 border-blue-500 border-t-transparent rounded-full animate-spin" />
-      <p className="text-sm text-gray-400">Locating sites on the map…</p>
-      <p className="text-xs text-gray-600">Geocoding {project.sites.filter(s => !s.lat || !s.lng).length} sites without coordinates</p>
-    </div>
-  )
-
   return (
     <div className="space-y-4">
 
@@ -493,7 +485,13 @@ mapboxgl.accessToken = token
         {/* Map */}
         <div className="flex-1 relative rounded-xl overflow-hidden" style={{ height:'520px' }}>
           <div ref={mapRef} className="w-full h-full" />
-          {!selected && (
+          {geocoding && (
+            <div className="absolute inset-0 bg-gray-950/80 backdrop-blur-sm flex flex-col items-center justify-center gap-3 z-10">
+              <div className="w-6 h-6 border-2 border-blue-500 border-t-transparent rounded-full animate-spin" />
+              <p className="text-sm text-gray-300">Locating {project.sites.filter(s => !s.lat || !s.lng).length} sites…</p>
+            </div>
+          )}
+          {!selected && !geocoding && (
             <div className="absolute top-3 left-3 bg-gray-900/90 backdrop-blur border border-gray-700/50 rounded-lg px-3 py-2">
               <p className="text-xs text-gray-400">Click any <span className="text-white">✈️ 🚛</span> or site pin for tracking</p>
             </div>
