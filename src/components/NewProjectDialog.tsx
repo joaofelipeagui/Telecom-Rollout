@@ -5,7 +5,8 @@ import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
 import { Project, Site, PROVIDERS, Wave } from '@/lib/types'
-import { Upload, Loader2 } from 'lucide-react'
+import { DEMO_SITES } from '@/lib/demoSites'
+import { Upload, Loader2, Globe } from 'lucide-react'
 
 interface Props {
   open: boolean
@@ -104,25 +105,42 @@ export function NewProjectDialog({ open, onClose, onCreate }: Props) {
             />
           </div>
           <div>
-            <Label className="text-gray-300">Import Sites (CSV)</Label>
+            <Label className="text-gray-300">Sites</Label>
+
+            {/* Demo data shortcut */}
+            <button
+              type="button"
+              onClick={() => setSites(DEMO_SITES.map((s, i) => ({ ...s, id: `demo_${Date.now()}_${i}` })))}
+              className="mt-1 w-full flex items-center gap-3 bg-blue-950/40 border border-blue-700/50 rounded-lg px-4 py-3 text-left hover:bg-blue-950/60 transition-colors"
+            >
+              <Globe className="w-5 h-5 text-blue-400 flex-shrink-0" />
+              <div>
+                <p className="text-sm font-medium text-blue-300">Load Global Demo Data</p>
+                <p className="text-xs text-blue-400/70">52 sites across 6 continents — Americas, Europe, MEA, Asia-Pacific</p>
+              </div>
+            </button>
+
+            <div className="flex items-center gap-2 my-2">
+              <div className="flex-1 h-px bg-gray-700" />
+              <span className="text-xs text-gray-500">or</span>
+              <div className="flex-1 h-px bg-gray-700" />
+            </div>
+
             <div
-              className="mt-1 border-2 border-dashed border-gray-700 rounded-lg p-6 text-center cursor-pointer hover:border-blue-500/50 transition-colors"
+              className="border-2 border-dashed border-gray-700 rounded-lg p-5 text-center cursor-pointer hover:border-blue-500/50 transition-colors"
               onClick={() => fileRef.current?.click()}
             >
-              <Upload className="w-6 h-6 text-gray-400 mx-auto mb-2" />
+              <Upload className="w-5 h-5 text-gray-400 mx-auto mb-1.5" />
               <p className="text-sm text-gray-400">
                 {sites.length > 0
-                  ? `${sites.length} sites imported`
-                  : 'Click to upload CSV with columns: name, address, city, state'}
+                  ? `${sites.length} sites loaded`
+                  : 'Upload CSV  ·  columns: name, address, city, state, country, wave'}
               </p>
               {sites.length > 0 && (
-                <p className="text-xs text-blue-400 mt-1">Preview: {sites.slice(0, 2).map(s => s.name).join(', ')}...</p>
+                <p className="text-xs text-blue-400 mt-1">{sites.slice(0, 3).map(s => s.name).join(', ')}{sites.length > 3 ? ` +${sites.length - 3} more` : ''}</p>
               )}
             </div>
             <input ref={fileRef} type="file" accept=".csv" className="hidden" onChange={handleFile} />
-            <p className="text-xs text-gray-500 mt-1">
-              Or start without sites and add them manually.
-            </p>
           </div>
           <div className="flex gap-3 pt-2">
             <Button variant="outline" onClick={onClose} className="flex-1 border-gray-700 text-gray-300">
