@@ -3,7 +3,16 @@ import { useState, useEffect, useRef } from 'react'
 import { Lock, Eye, EyeOff, Shield } from 'lucide-react'
 
 const STORAGE_KEY = 'telecom_pm_access'
-const ACCESS_CODE = process.env.NEXT_PUBLIC_ACCESS_CODE ?? 'DEMO2025'
+
+// Supports both a single code and a comma-separated list
+// NEXT_PUBLIC_ACCESS_CODES = LOREAL2025,DEMO_CLIENT,INTERNAL01
+// NEXT_PUBLIC_ACCESS_CODE  = DEMO2025  (fallback single code)
+function getValidCodes(): string[] {
+  const multi  = process.env.NEXT_PUBLIC_ACCESS_CODES ?? ''
+  const single = process.env.NEXT_PUBLIC_ACCESS_CODE  ?? 'DEMO2025'
+  const codes  = multi ? multi.split(',') : [single]
+  return codes.map(c => c.trim().toUpperCase()).filter(Boolean)
+}
 
 export function AccessGate({ children }: { children: React.ReactNode }) {
   const [granted,   setGranted]   = useState<boolean | null>(null)
@@ -23,7 +32,7 @@ export function AccessGate({ children }: { children: React.ReactNode }) {
   }, [granted])
 
   function attempt() {
-    if (input.trim().toUpperCase() === ACCESS_CODE.toUpperCase()) {
+    if (getValidCodes().includes(input.trim().toUpperCase())) {
       sessionStorage.setItem(STORAGE_KEY, 'true')
       setGranted(true)
       setError(false)
