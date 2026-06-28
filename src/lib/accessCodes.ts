@@ -27,12 +27,19 @@ export function issueCode(name: string, email: string): string {
 }
 
 export function isValidCode(code: string): boolean {
-  const upper = code.trim().toUpperCase()
+  const trimmed = code.trim()
+  const upper   = trimmed.toUpperCase()
+
+  // Owner email always grants access
+  const ownerEmail = process.env.OWNER_EMAIL ?? 'felipe.aguiar29@gmail.com'
+  if (trimmed.toLowerCase() === ownerEmail.toLowerCase()) return true
+
   // Check env var codes
-  const multi  = process.env.NEXT_PUBLIC_ACCESS_CODES ?? ''
-  const single = process.env.NEXT_PUBLIC_ACCESS_CODE  ?? 'DEMO2025'
+  const multi    = process.env.NEXT_PUBLIC_ACCESS_CODES ?? ''
+  const single   = process.env.NEXT_PUBLIC_ACCESS_CODE  ?? 'DEMO2025'
   const envCodes = (multi ? multi.split(',') : [single]).map(c => c.trim().toUpperCase())
   if (envCodes.includes(upper)) return true
+
   // Check issued codes
   return store.has(upper)
 }
