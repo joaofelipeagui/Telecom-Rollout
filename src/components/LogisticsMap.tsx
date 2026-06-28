@@ -339,7 +339,7 @@ mapboxgl.accessToken = token
       map.on('load', () => { mapInst.current = map; setMapLoaded(true) })
     })
     return () => { mapInst.current?.remove(); mapInst.current = null }
-  }, [token, geocoding])
+  }, [token])
 
   // Fly to selected shipment
   useEffect(() => {
