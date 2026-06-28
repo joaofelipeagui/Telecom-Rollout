@@ -183,6 +183,64 @@ export interface DIA {
   diversityConfirmed?: boolean
 }
 
+export type Region = 'NAM' | 'LATAM' | 'EMEA' | 'APAC'
+
+export const REGIONS: Region[] = ['NAM', 'LATAM', 'EMEA', 'APAC']
+
+export const REGION_LABELS: Record<Region, string> = {
+  NAM:   'North America',
+  LATAM: 'Latin America',
+  EMEA:  'Europe, Middle East & Africa',
+  APAC:  'Asia-Pacific',
+}
+
+export const REGION_COLORS: Record<Region, string> = {
+  NAM:   'text-blue-400 bg-blue-950/60 border-blue-700/50',
+  LATAM: 'text-green-400 bg-green-950/60 border-green-700/50',
+  EMEA:  'text-purple-400 bg-purple-950/60 border-purple-700/50',
+  APAC:  'text-orange-400 bg-orange-950/60 border-orange-700/50',
+}
+
+export const REGION_BAR_COLORS: Record<Region, string> = {
+  NAM:   'bg-blue-500',
+  LATAM: 'bg-green-500',
+  EMEA:  'bg-purple-500',
+  APAC:  'bg-orange-500',
+}
+
+const COUNTRY_TO_REGION: Record<string, Region> = {
+  // North America
+  'United States': 'NAM', 'USA': 'NAM', 'Canada': 'NAM', 'Mexico': 'NAM',
+  // Latin America
+  'Brazil': 'LATAM', 'Colombia': 'LATAM', 'Chile': 'LATAM', 'Argentina': 'LATAM',
+  'Peru': 'LATAM', 'Ecuador': 'LATAM', 'Uruguay': 'LATAM', 'Paraguay': 'LATAM',
+  'Bolivia': 'LATAM', 'Venezuela': 'LATAM', 'Panama': 'LATAM', 'Costa Rica': 'LATAM',
+  'Guatemala': 'LATAM', 'Honduras': 'LATAM', 'El Salvador': 'LATAM', 'Nicaragua': 'LATAM',
+  'Dominican Republic': 'LATAM', 'Cuba': 'LATAM', 'Puerto Rico': 'LATAM',
+  // Europe
+  'France': 'EMEA', 'Germany': 'EMEA', 'United Kingdom': 'EMEA', 'UK': 'EMEA',
+  'Italy': 'EMEA', 'Spain': 'EMEA', 'Netherlands': 'EMEA', 'Belgium': 'EMEA',
+  'Switzerland': 'EMEA', 'Austria': 'EMEA', 'Sweden': 'EMEA', 'Norway': 'EMEA',
+  'Denmark': 'EMEA', 'Finland': 'EMEA', 'Poland': 'EMEA', 'Portugal': 'EMEA',
+  'Czech Republic': 'EMEA', 'Hungary': 'EMEA', 'Romania': 'EMEA', 'Greece': 'EMEA',
+  'Ireland': 'EMEA', 'Luxembourg': 'EMEA', 'Slovakia': 'EMEA', 'Croatia': 'EMEA',
+  // Middle East
+  'UAE': 'EMEA', 'Saudi Arabia': 'EMEA', 'Israel': 'EMEA', 'Turkey': 'EMEA',
+  'Qatar': 'EMEA', 'Kuwait': 'EMEA', 'Bahrain': 'EMEA', 'Jordan': 'EMEA',
+  // Africa
+  'South Africa': 'EMEA', 'Nigeria': 'EMEA', 'Egypt': 'EMEA', 'Kenya': 'EMEA',
+  'Morocco': 'EMEA', 'Ghana': 'EMEA', 'Ethiopia': 'EMEA', 'Tanzania': 'EMEA',
+  // Asia-Pacific
+  'Japan': 'APAC', 'China': 'APAC', 'South Korea': 'APAC', 'India': 'APAC',
+  'Singapore': 'APAC', 'Australia': 'APAC', 'New Zealand': 'APAC', 'Hong Kong': 'APAC',
+  'Taiwan': 'APAC', 'Malaysia': 'APAC', 'Indonesia': 'APAC', 'Thailand': 'APAC',
+  'Philippines': 'APAC', 'Vietnam': 'APAC', 'Bangladesh': 'APAC', 'Pakistan': 'APAC',
+}
+
+export function getRegionForCountry(country: string): Region {
+  return COUNTRY_TO_REGION[country] ?? 'EMEA'
+}
+
 export const LATAM_COUNTRIES = [
   'Brazil', 'Colombia', 'Chile', 'Argentina', 'Mexico',
   'Peru', 'Ecuador', 'Uruguay', 'Paraguay', 'Bolivia',

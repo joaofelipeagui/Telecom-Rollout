@@ -1,6 +1,6 @@
 'use client'
 import { useState } from 'react'
-import { Project, Site, SiteStatus, Wave } from '@/lib/types'
+import { Project, Site, SiteStatus, Wave, Region, REGIONS, REGION_LABELS, REGION_COLORS, getRegionForCountry } from '@/lib/types'
 import { updateSite } from '@/lib/store'
 import { Badge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
@@ -35,6 +35,7 @@ export function SitesTable({ project, onUpdate, readonly }: Props) {
   const [filterStatus,  setFilterStatus]  = useState('all')
   const [filterWave,    setFilterWave]    = useState('all')
   const [filterCountry, setFilterCountry] = useState('all')
+  const [filterRegion,  setFilterRegion]  = useState('all')
   const [selectedSite,  setSelectedSite]  = useState<Site | null>(null)
   const [showFilters,   setShowFilters]   = useState(false)
 
@@ -42,7 +43,7 @@ export function SitesTable({ project, onUpdate, readonly }: Props) {
   const countries = Array.from(new Set(project.sites.map(s => s.country).filter(Boolean))).sort()
   const waves: Wave[] = [1, 2, 3]
 
-  const activeFilters = [filterStatus, filterWave, filterCountry].filter(f => f !== 'all').length
+  const activeFilters = [filterStatus, filterWave, filterCountry, filterRegion].filter(f => f !== 'all').length
 
   const filtered = project.sites.filter(site => {
     const q = search.toLowerCase()
@@ -54,7 +55,8 @@ export function SitesTable({ project, onUpdate, readonly }: Props) {
     const matchStatus  = filterStatus  === 'all' || site.status === filterStatus
     const matchWave    = filterWave    === 'all' || String(site.wave) === filterWave
     const matchCountry = filterCountry === 'all' || site.country === filterCountry
-    return matchSearch && matchStatus && matchWave && matchCountry
+    const matchRegion  = filterRegion  === 'all' || getRegionForCountry(site.country) === filterRegion
+    return matchSearch && matchStatus && matchWave && matchCountry && matchRegion
   })
 
   function diaCount(site: Site) {
@@ -80,6 +82,7 @@ export function SitesTable({ project, onUpdate, readonly }: Props) {
     setFilterStatus('all')
     setFilterWave('all')
     setFilterCountry('all')
+    setFilterRegion('all')
   }
 
   return (
@@ -146,10 +149,22 @@ export function SitesTable({ project, onUpdate, readonly }: Props) {
               </SelectContent>
             </Select>
 
+            <Select value={filterRegion} onValueChange={v => v && setFilterRegion(v)}>
+              <SelectTrigger className="w-36 bg-gray-900 border-gray-700 text-white text-xs h-8">
+                <Globe className="w-3 h-3 mr-1.5 text-gray-400" />
+                <SelectValue placeholder="Zone" />
+              </SelectTrigger>
+              <SelectContent className="bg-gray-900 border-gray-700">
+                <SelectItem value="all" className="text-white text-xs">All zones</SelectItem>
+                {REGIONS.map(r => (
+                  <SelectItem key={r} value={r} className="text-white text-xs">{r} — {REGION_LABELS[r].split(',')[0]}</SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
+
             {countries.length > 0 && (
               <Select value={filterCountry} onValueChange={v => v && setFilterCountry(v)}>
                 <SelectTrigger className="w-44 bg-gray-900 border-gray-700 text-white text-xs h-8">
-                  <Globe className="w-3 h-3 mr-1.5 text-gray-400" />
                   <SelectValue placeholder="Country" />
                 </SelectTrigger>
                 <SelectContent className="bg-gray-900 border-gray-700 max-h-60">
@@ -226,13 +241,22 @@ export function SitesTable({ project, onUpdate, readonly }: Props) {
                 >
                   <div className={`w-2 h-2 rounded-full flex-shrink-0 ${STATUS_DOT[site.status]}`} />
                   <div className="flex-1 min-w-0">
-                    <div className="flex items-center gap-2">
+                    <div className="flex items-center gap-2 flex-wrap">
                       <span className="text-sm font-medium text-white truncate">{site.name}</span>
                       {site.wave && (
                         <span className="text-xs px-1.5 py-0.5 rounded bg-gray-800 text-gray-400 flex-shrink-0">
                           W{site.wave}
                         </span>
                       )}
+                      {(() => {
+                        const region = getRegionForCountry(site.country)
+                        const cls = REGION_COLORS[region]
+                        return (
+                          <span className={`text-xs px-1.5 py-0.5 rounded border flex-shrink-0 font-medium ${cls}`}>
+                            {region}
+                          </span>
+                        )
+                      })()}
                     </div>
                     <div className="text-xs text-gray-400 truncate mt-0.5">
                       {[site.city, site.country].filter(Boolean).join(', ')}

@@ -1,6 +1,13 @@
 'use client'
 import { useEffect, useRef, useState } from 'react'
-import { Site } from '@/lib/types'
+import { Site, getRegionForCountry } from '@/lib/types'
+
+const REGION_BADGE_STYLE: Record<string, string> = {
+  NAM:   'background:#1e3a5f;color:#93c5fd',
+  LATAM: 'background:#14532d;color:#86efac',
+  EMEA:  'background:#3b0764;color:#d8b4fe',
+  APAC:  'background:#431407;color:#fdba74',
+}
 
 const STATUS_COLORS = {
   completed:   '#22c55e',
@@ -71,6 +78,10 @@ export function LATAMMap({ sites, onSiteClick }: Props) {
           const checklistDone = (site.checklist ?? []).filter(c => c.done).length
           const checklistTotal = (site.checklist ?? []).length
 
+          const region = getRegionForCountry(site.country)
+          const regionStyle = REGION_BADGE_STYLE[region] ?? 'background:#1f2937;color:#9ca3af'
+          const regionHtml = `<span style="${regionStyle};font-size:10px;padding:1px 6px;border-radius:9999px;font-weight:600">${region}</span>`
+
           const waveHtml = site.wave
             ? `<span style="background:#1e3a5f;color:#93c5fd;font-size:10px;padding:1px 6px;border-radius:9999px;font-weight:600">Wave ${site.wave}</span>`
             : ''
@@ -108,6 +119,7 @@ export function LATAMMap({ sites, onSiteClick }: Props) {
                 <span style="background:${color}22;color:${color};font-size:10px;padding:1px 6px;border-radius:9999px;font-weight:600;border:1px solid ${color}44">
                   ${STATUS_LABELS[site.status]}
                 </span>
+                ${regionHtml}
                 ${waveHtml}
               </div>
               ${diaHtml}

@@ -2,7 +2,7 @@
 import { useEffect, useState } from 'react'
 import { useRouter } from 'next/navigation'
 import { getProjects, saveProject } from '@/lib/store'
-import { Project, UserProfile, ROLE_LABELS, ROLE_COLORS, Site } from '@/lib/types'
+import { Project, UserProfile, ROLE_LABELS, ROLE_COLORS, Site, REGIONS, REGION_LABELS, REGION_COLORS, REGION_BAR_COLORS, getRegionForCountry } from '@/lib/types'
 import { getCurrentUser, clearCurrentUser } from '@/lib/user'
 import { Button } from '@/components/ui/button'
 import { Badge } from '@/components/ui/badge'
@@ -254,6 +254,32 @@ export default function Home() {
                   )
                 })}
               </div>
+              {/* Zone breakdown */}
+              {allSites.length > 0 && (
+                <div className="px-4 py-3 border-t border-gray-800 space-y-2">
+                  <p className="text-xs font-semibold text-gray-400 uppercase tracking-wider mb-2">Zones</p>
+                  {REGIONS.map(region => {
+                    const sites = allSites.filter(s => getRegionForCountry(s.country) === region)
+                    if (sites.length === 0) return null
+                    const done = sites.filter(s => s.status === 'completed').length
+                    const pct  = Math.round((done / sites.length) * 100)
+                    const badgeCls = REGION_COLORS[region]
+                    const barColor = REGION_BAR_COLORS[region]
+                    return (
+                      <div key={region}>
+                        <div className="flex items-center justify-between mb-1">
+                          <span className={`text-xs font-bold px-1.5 py-0.5 rounded border ${badgeCls}`}>{region}</span>
+                          <span className="text-xs text-gray-500">{sites.length} sites · {pct}%</span>
+                        </div>
+                        <div className="bg-gray-700 rounded-full h-1">
+                          <div className={`${barColor} h-1 rounded-full transition-all`} style={{ width: `${pct}%` }} />
+                        </div>
+                      </div>
+                    )
+                  })}
+                </div>
+              )}
+
               <div className="p-3 border-t border-gray-800">
                 <Button onClick={() => setOpen(true)} size="sm" className="w-full bg-gray-800 hover:bg-gray-700 text-gray-300 text-xs">
                   <Plus className="w-3.5 h-3.5 mr-1" /> New Project
