@@ -5,7 +5,8 @@ import { updateSite } from '@/lib/store'
 import { RouterCard } from './RouterCard'
 import { Input } from '@/components/ui/input'
 import { Badge } from '@/components/ui/badge'
-import { Search, Package, CheckCircle, Truck, Plane, AlertTriangle, ChevronRight } from 'lucide-react'
+import { Search, Package, CheckCircle, Truck, Plane, AlertTriangle, Map } from 'lucide-react'
+import { LogisticsMap } from './LogisticsMap'
 
 interface Props {
   project: Project
@@ -13,8 +14,9 @@ interface Props {
 }
 
 export function LogisticsView({ project, onUpdate }: Props) {
-  const [search, setSearch] = useState('')
+  const [search,   setSearch]   = useState('')
   const [selected, setSelected] = useState<Site | null>(null)
+  const [view,     setView]     = useState<'list' | 'map'>('map')
 
   const filtered = project.sites.filter(s =>
     !search || s.name.toLowerCase().includes(search.toLowerCase()) || s.city.toLowerCase().includes(search.toLowerCase())
@@ -57,6 +59,31 @@ export function LogisticsView({ project, onUpdate }: Props) {
 
   return (
     <div className="space-y-5">
+      {/* View toggle */}
+      <div className="flex items-center gap-2">
+        <button
+          onClick={() => setView('map')}
+          className={`flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-medium border transition-colors ${
+            view === 'map' ? 'bg-blue-900/50 border-blue-600 text-blue-300' : 'bg-gray-900 border-gray-700 text-gray-400 hover:border-gray-500'
+          }`}
+        >
+          <Map className="w-3.5 h-3.5" /> Live Map
+        </button>
+        <button
+          onClick={() => setView('list')}
+          className={`flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-medium border transition-colors ${
+            view === 'list' ? 'bg-blue-900/50 border-blue-600 text-blue-300' : 'bg-gray-900 border-gray-700 text-gray-400 hover:border-gray-500'
+          }`}
+        >
+          <Package className="w-3.5 h-3.5" /> Device List
+        </button>
+      </div>
+
+      {/* Live map view */}
+      {view === 'map' && <LogisticsMap project={project} />}
+
+      {/* List view */}
+      {view === 'list' && <>
       {/* KPI strip */}
       <div className="grid grid-cols-4 gap-3">
         {[
@@ -157,6 +184,7 @@ export function LogisticsView({ project, onUpdate }: Props) {
           </div>
         )}
       </div>
+      </>}
     </div>
   )
 }
