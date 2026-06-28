@@ -13,14 +13,15 @@ function getValidCodes(): string[] {
 }
 
 export function AccessGate({ children }: { children: React.ReactNode }) {
-  const [granted,  setGranted]  = useState<boolean | null>(null)
-  const [view,     setView]     = useState<'code' | 'request' | 'sent'>('code')
+  const [granted,    setGranted]    = useState<boolean | null>(null)
+  const [view,       setView]       = useState<'code' | 'request' | 'sent'>('code')
 
   // Code entry state
-  const [input,    setInput]    = useState('')
-  const [showCode, setShowCode] = useState(false)
-  const [error,    setError]    = useState(false)
-  const [shaking,  setShaking]  = useState(false)
+  const [input,      setInput]      = useState('')
+  const [showCode,   setShowCode]   = useState(false)
+  const [error,      setError]      = useState(false)
+  const [shaking,    setShaking]    = useState(false)
+  const [validating, setValidating] = useState(false)
   const inputRef = useRef<HTMLInputElement>(null)
 
   // Request form state
@@ -39,15 +40,29 @@ export function AccessGate({ children }: { children: React.ReactNode }) {
     if (granted === false && view === 'code') setTimeout(() => inputRef.current?.focus(), 100)
   }, [granted, view])
 
-  function attempt() {
-    if (getValidCodes().includes(input.trim().toUpperCase())) {
-      sessionStorage.setItem(STORAGE_KEY, 'true')
-      setGranted(true)
-    } else {
+  async function attempt() {
+    if (!input.trim()) return
+    setValidating(true)
+    try {
+      const res  = await fetch('/api/validate-code', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ code: input.trim() }),
+      })
+      const { valid } = await res.json()
+      if (valid) {
+        sessionStorage.setItem(STORAGE_KEY, 'true')
+        setGranted(true)
+      } else {
+        setError(true)
+        setShaking(true)
+        setInput('')
+        setTimeout(() => setShaking(false), 600)
+      }
+    } catch {
       setError(true)
-      setShaking(true)
-      setInput('')
-      setTimeout(() => setShaking(false), 600)
+    } finally {
+      setValidating(false)
     }
   }
 
@@ -121,9 +136,9 @@ export function AccessGate({ children }: { children: React.ReactNode }) {
                   </button>
                 </div>
                 {error && <p className="text-xs text-red-400 text-center">Incorrect access code — please try again</p>}
-                <button onClick={attempt}
-                  className="w-full py-2.5 rounded-lg bg-blue-600 hover:bg-blue-500 active:bg-blue-700 text-sm font-semibold text-white transition-colors">
-                  Enter
+                <button onClick={attempt} disabled={validating}
+                  className="w-full py-2.5 rounded-lg bg-blue-600 hover:bg-blue-500 disabled:opacity-60 text-sm font-semibold text-white transition-colors flex items-center justify-center gap-2">
+                  {validating ? <><Loader2 className="w-4 h-4 animate-spin" /> Checking…</> : 'Enter'}
                 </button>
               </div>
               <div className="mt-5 pt-4 border-t border-gray-800 space-y-3">
@@ -181,8 +196,10 @@ export function AccessGate({ children }: { children: React.ReactNode }) {
           {view === 'sent' && (
             <>
               <div className="text-center mb-6">
-                <h1 className="text-lg font-bold text-white mb-1">Request Sent!</h1>
-                <p className="text-sm text-gray-400">The project owner has been notified and will send your access code shortly.</p>
+                <h1 className="text-lg font-bold text-white mb-1">Check your inbox!</h1>
+                <p className="text-sm text-gray-400">
+                  Your personal access code was sent to <span className="text-white font-medium">{reqEmail}</span>. Enter it on the previous screen to get in.
+                </p>
               </div>
               <button onClick={() => setView('code')}
                 className="w-full py-2.5 rounded-lg bg-gray-800 hover:bg-gray-700 text-sm font-medium text-gray-300 transition-colors flex items-center justify-center gap-1.5">
