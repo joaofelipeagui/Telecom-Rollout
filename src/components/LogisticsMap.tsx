@@ -253,6 +253,7 @@ export function LogisticsMap({ project }: Props) {
 
   const [shipments,    setShipments]    = useState<Shipment[]>(() => buildShipments(project))
   const [selected,     setSelected]     = useState<Shipment | null>(null)
+  const [activeFilter, setActiveFilter] = useState<string | null>(null)
   const [deliveryFeed, setDeliveryFeed] = useState<{ id:string; siteName:string; ts:string; transport:string }[]>([])
   const [toast,        setToast]        = useState<{ siteName:string; transport:string } | null>(null)
   const [flashIds,     setFlashIds]     = useState<Set<string>>(new Set())
@@ -406,6 +407,18 @@ export function LogisticsMap({ project }: Props) {
   const delivered = shipments.filter(s => s.status==='delivered').length
   const stuck     = shipments.filter(s => s.status==='customs').length
 
+  const KPI_FILTERS = [
+    { key:'active',    label:'Active Shipments', value:active,    icon:Package,     color:'text-blue-400',   bg:'border-blue-800/30 bg-blue-950/20',     activeBg:'border-blue-500 bg-blue-900/40',   match:(s:Shipment) => s.status==='in_transit' },
+    { key:'air',       label:'In Air ✈',          value:inAir,     icon:Plane,       color:'text-cyan-400',   bg:'border-cyan-800/30 bg-cyan-950/20',     activeBg:'border-cyan-500 bg-cyan-900/40',   match:(s:Shipment) => s.transport==='air' && s.status==='in_transit' },
+    { key:'road',      label:'On Road 🚛',         value:onRoad,    icon:Truck,       color:'text-yellow-400', bg:'border-yellow-800/30 bg-yellow-950/20', activeBg:'border-yellow-500 bg-yellow-900/40', match:(s:Shipment) => s.transport==='truck' && s.status==='in_transit' },
+    { key:'delivered', label:'Delivered',          value:delivered, icon:CheckCircle, color:'text-green-400',  bg:'border-green-800/30 bg-green-950/20',   activeBg:'border-green-500 bg-green-900/40', match:(s:Shipment) => s.status==='delivered' },
+    { key:'customs',   label:'Customs / Hold',     value:stuck,     icon:Clock,       color:'text-orange-400', bg:'border-orange-800/30 bg-orange-950/20', activeBg:'border-orange-500 bg-orange-900/40', match:(s:Shipment) => s.status==='customs' },
+  ]
+
+  const visibleShipments = activeFilter
+    ? shipments.filter(KPI_FILTERS.find(f => f.key === activeFilter)!.match)
+    : shipments
+
   if (!token) return (
     <div className="flex items-center justify-center h-64 bg-gray-900 rounded-xl border border-gray-800">
       <p className="text-gray-500 text-sm">Configure MAPBOX_TOKEN to enable the logistics map</p>
@@ -428,21 +441,21 @@ export function LogisticsMap({ project }: Props) {
         </div>
       )}
 
-      {/* KPI strip */}
+      {/* KPI strip — clickable filters */}
       <div className="grid grid-cols-5 gap-3">
-        {[
-          { label:'Active Shipments', value:active,    icon:Package,      color:'text-blue-400',   bg:'border-blue-800/30 bg-blue-950/20' },
-          { label:'In Air ✈',         value:inAir,     icon:Plane,        color:'text-cyan-400',   bg:'border-cyan-800/30 bg-cyan-950/20' },
-          { label:'On Road 🚛',        value:onRoad,    icon:Truck,        color:'text-yellow-400', bg:'border-yellow-800/30 bg-yellow-950/20' },
-          { label:'Delivered',         value:delivered, icon:CheckCircle,  color:'text-green-400',  bg:'border-green-800/30 bg-green-950/20' },
-          { label:'Customs / Hold',    value:stuck,     icon:Clock,        color:'text-orange-400', bg:'border-orange-800/30 bg-orange-950/20' },
-        ].map(({ label, value, icon:Icon, color, bg }) => (
-          <div key={label} className={`rounded-xl border px-4 py-3 ${bg}`}>
-            <Icon className={`w-4 h-4 ${color} mb-1`} />
-            <div className={`text-2xl font-bold ${color}`}>{value}</div>
-            <div className="text-xs text-gray-400 mt-0.5">{label}</div>
-          </div>
-        ))}
+        {KPI_FILTERS.map(({ key, label, value, icon:Icon, color, bg, activeBg }) => {
+          const isActive = activeFilter === key
+          return (
+            <button key={key}
+              onClick={() => setActiveFilter(isActive ? null : key)}
+              className={`rounded-xl border px-4 py-3 text-left transition-all ${isActive ? activeBg : `${bg} hover:opacity-80`} ${isActive ? 'ring-1 ring-inset ring-white/10' : ''}`}>
+              <Icon className={`w-4 h-4 ${color} mb-1`} />
+              <div className={`text-2xl font-bold ${color}`}>{value}</div>
+              <div className="text-xs text-gray-400 mt-0.5">{label}</div>
+              {isActive && <div className="text-xs text-white/50 mt-0.5">click to clear</div>}
+            </button>
+          )
+        })}
       </div>
 
       <div className="flex gap-4">
@@ -475,9 +488,17 @@ export function LogisticsMap({ project }: Props) {
             />
           ) : (
             <div className="space-y-2">
-              <p className="text-xs text-gray-500 uppercase tracking-wider font-semibold mb-1">
-                Sites — click to track
-              </p>
+              <div className="flex items-center justify-between mb-1">
+                <p className="text-xs text-gray-500 uppercase tracking-wider font-semibold">
+                  {activeFilter ? KPI_FILTERS.find(f=>f.key===activeFilter)?.label : 'All Shipments'}
+                  <span className="ml-1.5 text-gray-600 normal-case font-normal">({visibleShipments.length})</span>
+                </p>
+                {activeFilter && (
+                  <button onClick={() => setActiveFilter(null)} className="text-xs text-gray-500 hover:text-white transition-colors">
+                    ✕ clear
+                  </button>
+                )}
+              </div>
               {/* Recent deliveries */}
               {deliveryFeed.length > 0 && (
                 <div className="bg-green-950/30 border border-green-800/40 rounded-xl overflow-hidden mb-3">
@@ -495,7 +516,7 @@ export function LogisticsMap({ project }: Props) {
                 </div>
               )}
               {/* Site list */}
-              {shipments
+              {visibleShipments
                 .slice()
                 .sort((a,b) => {
                   if (a.speedTier==='fast' && b.speedTier!=='fast') return -1
