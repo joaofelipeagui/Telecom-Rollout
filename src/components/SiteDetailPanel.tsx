@@ -67,15 +67,17 @@ export function SiteDetailPanel({ site, projectId, onClose, onUpdate, readonly }
     setAnalyzing(true)
     try {
       let imageBase64: string | undefined
+      let imageMediaType: string | undefined
       if (satelliteUrl) {
         const imgRes = await fetch(satelliteUrl)
         const buf = await imgRes.arrayBuffer()
         imageBase64 = btoa(String.fromCharCode(...new Uint8Array(buf)))
+        imageMediaType = imgRes.headers.get('content-type') || 'image/png'
       }
       const res = await fetch('/api/ai', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ type: 'analyze_site', payload: { address: site.address, city: site.city, state: site.state, imageBase64 } })
+        body: JSON.stringify({ type: 'analyze_site', payload: { address: site.address, city: site.city, state: site.state, imageBase64, imageMediaType } })
       })
       const { result } = await res.json()
       setAiDesc(result)

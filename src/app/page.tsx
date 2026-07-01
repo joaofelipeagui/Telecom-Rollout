@@ -8,7 +8,7 @@ import { Button } from '@/components/ui/button'
 import { Badge } from '@/components/ui/badge'
 import {
   Plus, Globe, CheckCircle, AlertTriangle, Clock, Plane,
-  MapPin, Network, BarChart3, GitBranch, Bot, Package, Wifi, ArrowRight, Bell, Award, Activity, Trash2
+  MapPin, Network, BarChart3, GitBranch, Bot, Package, Wifi, ArrowRight, Bell, Award, Activity, Trash2, Plug
 } from 'lucide-react'
 import Link from 'next/link'
 import { NewProjectDialog } from '@/components/NewProjectDialog'
@@ -28,6 +28,7 @@ const ROLE_ACTIONS: Record<string, { label: string; tab: string; icon: React.Ele
     { label: 'Executive Report',   tab: 'report',      icon: BarChart3,     color: 'text-emerald-400 bg-emerald-950/50 border-emerald-800/40' },
     { label: 'Carrier Score',      tab: 'carriers',    icon: Award,         color: 'text-pink-400 bg-pink-950/50 border-pink-800/40' },
     { label: 'Live Network',       tab: 'network',     icon: Activity,      color: 'text-teal-400 bg-teal-950/50 border-teal-800/40' },
+    { label: 'Circuit Live',       tab: 'circuit',     icon: Plug,          color: 'text-blue-400 bg-blue-950/50 border-blue-800/40' },
     { label: 'AI Assistant',       tab: 'ai',          icon: Bot,           color: 'text-yellow-400 bg-yellow-950/50 border-yellow-800/40' },
   ],
   solutions_manager: [
@@ -35,6 +36,7 @@ const ROLE_ACTIONS: Record<string, { label: string; tab: string; icon: React.Ele
     { label: 'SLA Alerts',         tab: 'sla',         icon: Bell,          color: 'text-orange-400 bg-orange-950/50 border-orange-800/40' },
     { label: 'Carrier Score',      tab: 'carriers',    icon: Award,         color: 'text-pink-400 bg-pink-950/50 border-pink-800/40' },
     { label: 'Live Network',       tab: 'network',     icon: Activity,      color: 'text-teal-400 bg-teal-950/50 border-teal-800/40' },
+    { label: 'Circuit Live',       tab: 'circuit',     icon: Plug,          color: 'text-blue-400 bg-blue-950/50 border-blue-800/40' },
     { label: 'Escalations',        tab: 'escalations', icon: AlertTriangle, color: 'text-red-400 bg-red-950/50 border-red-800/40' },
     { label: 'Gantt Timeline',     tab: 'gantt',       icon: GitBranch,     color: 'text-purple-400 bg-purple-950/50 border-purple-800/40' },
     { label: 'Site List',          tab: 'sites',       icon: MapPin,        color: 'text-blue-400 bg-blue-950/50 border-blue-800/40' },
@@ -58,6 +60,7 @@ const ROLE_ACTIONS: Record<string, { label: string; tab: string; icon: React.Ele
     { label: 'SLA Alerts',         tab: 'sla',         icon: Bell,          color: 'text-orange-400 bg-orange-950/50 border-orange-800/40' },
     { label: 'Carrier Score',      tab: 'carriers',    icon: Award,         color: 'text-pink-400 bg-pink-950/50 border-pink-800/40' },
     { label: 'Live Network',       tab: 'network',     icon: Activity,      color: 'text-teal-400 bg-teal-950/50 border-teal-800/40' },
+    { label: 'Circuit Live',       tab: 'circuit',     icon: Plug,          color: 'text-blue-400 bg-blue-950/50 border-blue-800/40' },
     { label: 'Site List',          tab: 'sites',       icon: MapPin,        color: 'text-blue-400 bg-blue-950/50 border-blue-800/40' },
   ],
   sdwan_engineer: [

@@ -14,7 +14,7 @@ import { Progress } from '@/components/ui/progress'
 import {
   ArrowLeft, Download, Bot, Plus, LogOut, Package,
   BarChart3, AlertTriangle, GitBranch, Clock, Share2, FileSpreadsheet, Eye, X, Lightbulb,
-  Bell, Award, Activity, Wifi as WifiIcon
+  Bell, Award, Activity, Wifi as WifiIcon, Plug
 } from 'lucide-react'
 import Link from 'next/link'
 import { SitesTable } from '@/components/SitesTable'
@@ -34,6 +34,7 @@ import { ChangeLog } from '@/components/ChangeLog'
 import { SLAAlerts, getSLAAlertCount } from '@/components/SLAAlerts'
 import { CarrierScorecard } from '@/components/CarrierScorecard'
 import { NetworkMonitor } from '@/components/NetworkMonitor'
+import { CircuitLive } from '@/components/CircuitLive'
 import { generateKMZ, downloadBlob } from '@/lib/kmz'
 import { RolePicker } from '@/components/RolePicker'
 
@@ -228,10 +229,14 @@ export default function ProjectPage({ params }: { params: Promise<{ id: string }
               <TabsTrigger value="network" className="data-[state=active]:bg-gray-800 text-xs">
                 <Activity className="w-3.5 h-3.5 mr-1" />Live Network
               </TabsTrigger>
+              <TabsTrigger value="circuit" className="data-[state=active]:bg-gray-800 text-xs">
+                <Plug className="w-3.5 h-3.5 mr-1" />Circuit Live
+              </TabsTrigger>
             </TabsList>
             <TabsContent value="field">   <FieldEngineerView project={project} onUpdate={reload} /></TabsContent>
             <TabsContent value="sites">   <SitesTable project={project} onUpdate={reload} /></TabsContent>
             <TabsContent value="network"> <NetworkMonitor project={project} /></TabsContent>
+            <TabsContent value="circuit"> <CircuitLive project={project} onUpdate={reload} /></TabsContent>
           </Tabs>
 
         ) : effectiveRole === 'sdwan_engineer' ? (
@@ -243,11 +248,15 @@ export default function ProjectPage({ params }: { params: Promise<{ id: string }
               <TabsTrigger value="network" className="data-[state=active]:bg-gray-800 text-xs">
                 <Activity className="w-3.5 h-3.5 mr-1" />Live Network
               </TabsTrigger>
+              <TabsTrigger value="circuit" className="data-[state=active]:bg-gray-800 text-xs">
+                <Plug className="w-3.5 h-3.5 mr-1" />Circuit Live
+              </TabsTrigger>
             </TabsList>
             <TabsContent value="sdwan">   <SDWANEngineerView project={project} onUpdate={reload} /></TabsContent>
             <TabsContent value="sites">   <SitesTable project={project} onUpdate={reload} /></TabsContent>
             <TabsContent value="dia">     <DIAMatrix project={project} onUpdate={reload} /></TabsContent>
             <TabsContent value="network"> <NetworkMonitor project={project} /></TabsContent>
+            <TabsContent value="circuit"> <CircuitLive project={project} onUpdate={reload} /></TabsContent>
           </Tabs>
 
         ) : effectiveRole === 'telco_engineer' ? (
@@ -268,6 +277,9 @@ export default function ProjectPage({ params }: { params: Promise<{ id: string }
                 <Activity className="w-3.5 h-3.5 mr-1" />Live Network
               </TabsTrigger>
               <TabsTrigger value="sites"     className="data-[state=active]:bg-gray-800 text-xs">Sites</TabsTrigger>
+              <TabsTrigger value="circuit" className="data-[state=active]:bg-gray-800 text-xs">
+                <Plug className="w-3.5 h-3.5 mr-1" />Circuit Live
+              </TabsTrigger>
               <TabsTrigger value="changelog" className="data-[state=active]:bg-gray-800 text-xs">
                 <Clock className="w-3.5 h-3.5 mr-1" />Changelog
               </TabsTrigger>
@@ -276,6 +288,7 @@ export default function ProjectPage({ params }: { params: Promise<{ id: string }
             <TabsContent value="sla">       <SLAAlerts project={project} /></TabsContent>
             <TabsContent value="carriers">  <CarrierScorecard project={project} /></TabsContent>
             <TabsContent value="network">   <NetworkMonitor project={project} /></TabsContent>
+            <TabsContent value="circuit">   <CircuitLive project={project} onUpdate={reload} /></TabsContent>
             <TabsContent value="sites">     <SitesTable project={project} onUpdate={reload} /></TabsContent>
             <TabsContent value="changelog"> <ChangeLog project={project} /></TabsContent>
           </Tabs>
@@ -307,6 +320,9 @@ export default function ProjectPage({ params }: { params: Promise<{ id: string }
               </TabsTrigger>
               <TabsTrigger value="sites"       className="data-[state=active]:bg-gray-800 text-xs">Sites</TabsTrigger>
               <TabsTrigger value="dia"         className="data-[state=active]:bg-gray-800 text-xs">DIA Overview</TabsTrigger>
+              <TabsTrigger value="circuit"     className="data-[state=active]:bg-gray-800 text-xs">
+                <Plug className="w-3.5 h-3.5 mr-1" />Circuit Live
+              </TabsTrigger>
               <TabsTrigger value="changelog"   className="data-[state=active]:bg-gray-800 text-xs">
                 <Clock className="w-3.5 h-3.5 mr-1" />Changelog
               </TabsTrigger>
@@ -316,6 +332,7 @@ export default function ProjectPage({ params }: { params: Promise<{ id: string }
             <TabsContent value="sla">         <SLAAlerts project={project} /></TabsContent>
             <TabsContent value="carriers">    <CarrierScorecard project={project} /></TabsContent>
             <TabsContent value="network">     <NetworkMonitor project={project} /></TabsContent>
+            <TabsContent value="circuit">     <CircuitLive project={project} onUpdate={reload} /></TabsContent>
             <TabsContent value="escalations"> <EscalationTracker project={project} onUpdate={reload} readonly={readonly} /></TabsContent>
             <TabsContent value="gantt">       <GanttView project={project} /></TabsContent>
             <TabsContent value="sites">       <SitesTable project={project} onUpdate={reload} /></TabsContent>
@@ -350,6 +367,9 @@ export default function ProjectPage({ params }: { params: Promise<{ id: string }
                 <GitBranch className="w-3.5 h-3.5 mr-1" />Gantt
               </TabsTrigger>
               <TabsTrigger value="sites"       className="data-[state=active]:bg-gray-800 text-xs">Sites</TabsTrigger>
+              <TabsTrigger value="circuit"     className="data-[state=active]:bg-gray-800 text-xs">
+                <Plug className="w-3.5 h-3.5 mr-1" />Circuit Live
+              </TabsTrigger>
               <TabsTrigger value="changelog"   className="data-[state=active]:bg-gray-800 text-xs">
                 <Clock className="w-3.5 h-3.5 mr-1" />Changelog
               </TabsTrigger>
@@ -360,6 +380,7 @@ export default function ProjectPage({ params }: { params: Promise<{ id: string }
             <TabsContent value="sla">         <SLAAlerts project={project} /></TabsContent>
             <TabsContent value="carriers">    <CarrierScorecard project={project} /></TabsContent>
             <TabsContent value="network">     <NetworkMonitor project={project} /></TabsContent>
+            <TabsContent value="circuit">     <CircuitLive project={project} onUpdate={reload} /></TabsContent>
             <TabsContent value="escalations"> <EscalationTracker project={project} onUpdate={reload} readonly={readonly} /></TabsContent>
             <TabsContent value="gantt">       <GanttView project={project} /></TabsContent>
             <TabsContent value="sites">       <SitesTable project={project} onUpdate={reload} /></TabsContent>
@@ -392,6 +413,9 @@ export default function ProjectPage({ params }: { params: Promise<{ id: string }
               <TabsTrigger value="network"     className="data-[state=active]:bg-gray-800 text-xs">
                 <Activity className="w-3.5 h-3.5 mr-1" />Live Network
               </TabsTrigger>
+              <TabsTrigger value="circuit"     className="data-[state=active]:bg-gray-800 text-xs">
+                <Plug className="w-3.5 h-3.5 mr-1" />Circuit Live
+              </TabsTrigger>
               <TabsTrigger value="report"      className="data-[state=active]:bg-gray-800 text-xs">
                 <BarChart3 className="w-3.5 h-3.5 mr-1" />Report
               </TabsTrigger>
@@ -410,6 +434,7 @@ export default function ProjectPage({ params }: { params: Promise<{ id: string }
             <TabsContent value="sla"         className="mt-4"><SLAAlerts project={project} /></TabsContent>
             <TabsContent value="carriers"    className="mt-4"><CarrierScorecard project={project} /></TabsContent>
             <TabsContent value="network"     className="mt-4"><NetworkMonitor project={project} /></TabsContent>
+            <TabsContent value="circuit"     className="mt-4"><CircuitLive project={project} onUpdate={reload} /></TabsContent>
             <TabsContent value="report"      className="mt-4"><ExecutiveReport project={project} onUpdate={reload} /></TabsContent>
             <TabsContent value="changelog"   className="mt-4"><ChangeLog project={project} /></TabsContent>
             <TabsContent value="ai"          className="mt-4"><AIAssistant project={project} /></TabsContent>

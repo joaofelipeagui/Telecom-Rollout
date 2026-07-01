@@ -284,22 +284,16 @@ export function ExecutiveReport({ project, onUpdate }: Props) {
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
           type: 'query',
-          query: `Generate a concise 3-paragraph executive report for a telecom rollout program.
-          Project: ${ctx.project} | Customer: ${ctx.customer}
-          Sites: ${ctx.total} total, ${ctx.completed} completed, ${ctx.blocked} blocked
-          DIA Circuits: ${ctx.diaReady}/${ctx.total} confirmed
-          Logistics: ${ctx.logisticsReady}/${ctx.total} routers installed
-          Country Breakdown: ${ctx.countryBreakdown}
-          Waves: ${ctx.waves || 'No wave dates configured'}
-          Top Risks: ${ctx.topRisks}
-
-          Format: Executive Summary | Key Milestones & Delays | Risk & Recommendations.
-          Professional tone, data-driven, LATAM telecom context. No bullet lists — flowing paragraphs.`,
-          projectContext: project,
+          payload: {
+            question: `Generate a concise 3-paragraph executive report for a telecom rollout program.
+            Format: Executive Summary | Key Milestones & Delays | Risk & Recommendations.
+            Professional tone, data-driven, LATAM telecom context. No bullet lists — flowing paragraphs.`,
+            projectData: ctx,
+          },
         })
       })
       const data = await res.json()
-      setReportText(data.response || data.error || '')
+      setReportText(data.result || data.error || '')
     } finally {
       setGenerating(false)
     }
